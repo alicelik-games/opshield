@@ -6,11 +6,11 @@ import tempfile
 
 sys.path.insert(0, "src")
 
-from opshield import OpShield
+from warderbox import WarderBox
 
 
 def test_from_config_custom_rule():
-    shield = OpShield.from_config({
+    shield = WarderBox.from_config({
         "budget": 10.0,
         "rules": [
             {
@@ -35,7 +35,7 @@ def test_from_config_custom_rule():
 
 
 def test_from_config_regex_rule():
-    shield = OpShield.from_config({
+    shield = WarderBox.from_config({
         "rules": [
             {
                 "name": "no_passwords",
@@ -62,7 +62,7 @@ def test_sqlite_logger():
         db_path = f.name
 
     try:
-        shield = OpShield(budget=10.0, db_path=db_path)
+        shield = WarderBox(budget=10.0, db_path=db_path)
 
         @shield.tool(cost=0.05)
         def do_work(task: str):

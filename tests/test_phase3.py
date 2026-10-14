@@ -6,14 +6,14 @@ import time
 
 sys.path.insert(0, "src")
 
-from opshield import OpShield, AsyncOpShield, RateLimiter, ToolLimit, EventNotifier
-from opshield.integrations.anthropic_sdk import AnthropicShieldMiddleware
+from warderbox import WarderBox, AsyncWarderBox, RateLimiter, ToolLimit, EventNotifier
+from warderbox.integrations.anthropic_sdk import AnthropicShieldMiddleware
 
 
 # -- Rate Limiting --
 
 def test_rate_limiter_global_rpm():
-    shield = OpShield(budget=100.0, global_rpm=3)
+    shield = WarderBox(budget=100.0, global_rpm=3)
 
     @shield.tool(cost=0.01)
     def ping(msg: str):
@@ -32,7 +32,7 @@ def test_rate_limiter_global_rpm():
 
 
 def test_rate_limiter_per_tool():
-    shield = OpShield(
+    shield = WarderBox(
         budget=100.0,
         tool_limits={"send_email": ToolLimit(rpm=2)},
     )
@@ -86,7 +86,7 @@ def test_event_notifier_wildcard():
 def test_shield_emits_events():
     events = []
 
-    shield = OpShield(budget=10.0)
+    shield = WarderBox(budget=10.0)
     shield.notifier.on("action_blocked", lambda e, d: events.append(("blocked", d)))
     shield.notifier.on("action_completed", lambda e, d: events.append(("completed", d)))
 
@@ -110,7 +110,7 @@ def test_shield_emits_events():
 # -- Anthropic SDK Integration --
 
 def test_anthropic_middleware():
-    shield = OpShield(budget=5.0)
+    shield = WarderBox(budget=5.0)
     middleware = AnthropicShieldMiddleware(
         shield=shield,
         executors={"search": lambda query: f"results for {query}"},
@@ -135,7 +135,7 @@ def test_anthropic_middleware():
 
 
 def test_anthropic_format_tool_result():
-    shield = OpShield(budget=5.0)
+    shield = WarderBox(budget=5.0)
     middleware = AnthropicShieldMiddleware(
         shield=shield,
         executors={"run_sql": lambda query: f"executed: {query}"},
@@ -156,7 +156,7 @@ def test_anthropic_format_tool_result():
 # -- Async Shield --
 
 def test_async_shield_basic():
-    shield = AsyncOpShield(budget=5.0)
+    shield = AsyncWarderBox(budget=5.0)
 
     @shield.async_tool(cost=0.1)
     async def async_query(sql: str):
@@ -175,7 +175,7 @@ def test_async_shield_basic():
 
 
 def test_async_shield_sync_fallback():
-    shield = AsyncOpShield(budget=5.0)
+    shield = AsyncWarderBox(budget=5.0)
 
     @shield.async_tool(cost=0.1)
     def sync_fn(x: int):
@@ -194,7 +194,7 @@ def test_async_shield_sync_fallback():
 def test_from_config_with_rate_limits():
     events = []
 
-    shield = OpShield.from_config({
+    shield = WarderBox.from_config({
         "budget": 10.0,
         "global_rpm": 5,
         "tool_limits": {

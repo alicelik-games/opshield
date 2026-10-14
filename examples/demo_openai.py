@@ -1,14 +1,14 @@
-"""Demo: OpShield with OpenAI-style agent loop.
+"""Demo: WarderBox with OpenAI-style agent loop.
 
-This simulates how OpShield works with OpenAI's function calling,
+This simulates how WarderBox works with OpenAI's function calling,
 without requiring an actual OpenAI API key.
 """
 
 import sys
 sys.path.insert(0, "src")
 
-from opshield import OpShield
-from opshield.integrations.openai_agents import OpenAIShieldMiddleware
+from warderbox import WarderBox
+from warderbox.integrations.openai_agents import OpenAIShieldMiddleware
 
 
 # ============================================================
@@ -49,9 +49,9 @@ def run_sql(query: str) -> str:
 
 
 # ============================================================
-# 3. Set up OpShield with config
+# 3. Set up WarderBox with config
 # ============================================================
-shield = OpShield.from_config({
+shield = WarderBox.from_config({
     "budget": 2.00,
     "mode": "production",
     "db_path": "demo_audit.db",
@@ -103,7 +103,7 @@ class FakeToolCall:
 
 def main():
     print("=" * 60)
-    print("  OpShield + OpenAI Integration Demo")
+    print("  WarderBox + OpenAI Integration Demo")
     print("=" * 60)
 
     # Safe: read a file

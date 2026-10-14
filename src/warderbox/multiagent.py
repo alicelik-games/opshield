@@ -1,6 +1,6 @@
 """Multi-agent support: isolated shields per agent with a central pool.
 
-Each agent gets its own OpShield instance with separate budget,
+Each agent gets its own WarderBox instance with separate budget,
 rules, rate limits, and audit trail — while the pool provides a
 unified view across all agents.
 
@@ -31,13 +31,13 @@ from __future__ import annotations
 
 from typing import Any
 
-from opshield.logger import ActionLogger
-from opshield.ratelimit import ToolLimit
-from opshield.shield import OpShield
+from warderbox.logger import ActionLogger
+from warderbox.ratelimit import ToolLimit
+from warderbox.shield import WarderBox
 
 
 class AgentPool:
-    """Manages multiple OpShield instances, one per named agent."""
+    """Manages multiple WarderBox instances, one per named agent."""
 
     def __init__(
         self,
@@ -48,7 +48,7 @@ class AgentPool:
         self._default_budget = default_budget
         self._default_mode = default_mode
         self._global_db_path = global_db_path
-        self._agents: dict[str, OpShield] = {}
+        self._agents: dict[str, WarderBox] = {}
 
     def register(
         self,
@@ -60,18 +60,18 @@ class AgentPool:
         global_rph: int | None = None,
         tool_limits: dict[str, ToolLimit] | None = None,
         config: dict[str, Any] | None = None,
-    ) -> OpShield:
+    ) -> WarderBox:
         """Register a new agent with its own isolated shield.
 
-        Returns the created OpShield instance.
+        Returns the created WarderBox instance.
         """
         if name in self._agents:
             raise ValueError(f"Agent '{name}' is already registered")
 
         if config:
-            shield = OpShield.from_config(config)
+            shield = WarderBox.from_config(config)
         else:
-            shield = OpShield(
+            shield = WarderBox(
                 budget=budget if budget is not None else self._default_budget,
                 mode=mode or self._default_mode,
                 db_path=db_path or self._global_db_path,
@@ -83,13 +83,13 @@ class AgentPool:
         self._agents[name] = shield
         return shield
 
-    def get(self, name: str) -> OpShield:
+    def get(self, name: str) -> WarderBox:
         """Get an agent's shield by name."""
         if name not in self._agents:
             raise KeyError(f"Agent '{name}' not registered. Use pool.register('{name}') first.")
         return self._agents[name]
 
-    def __getitem__(self, name: str) -> OpShield:
+    def __getitem__(self, name: str) -> WarderBox:
         return self.get(name)
 
     def __contains__(self, name: str) -> bool:

@@ -1,4 +1,4 @@
-"""Webhook and callback notification system for OpShield events.
+"""Webhook and callback notification system for WarderBox events.
 
 Supports HTTP webhooks and in-process callbacks for events like:
 - action_blocked: an action was blocked by rules or budget

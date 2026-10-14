@@ -21,8 +21,8 @@ Usage:
     # Add custom patterns
     masker.add_pattern("internal_id", r"PROJ-\\d{6}", "PROJ-******")
 
-    # Use with OpShield
-    shield = OpShield(budget=5.0)
+    # Use with WarderBox
+    shield = WarderBox(budget=5.0)
     shield.set_masker(masker)
 """
 

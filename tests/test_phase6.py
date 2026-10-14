@@ -7,9 +7,9 @@ import tempfile
 
 sys.path.insert(0, "src")
 
-from opshield import OpShield, DataMasker
-from opshield.masking import DataMasker, DEFAULT_PATTERNS
-from opshield.replay import ActionReplayer
+from warderbox import WarderBox, DataMasker
+from warderbox.masking import DataMasker, DEFAULT_PATTERNS
+from warderbox.replay import ActionReplayer
 
 
 # -- Data Masking --
@@ -95,7 +95,7 @@ def test_masker_in_shield_logs():
 
     try:
         masker = DataMasker()
-        shield = OpShield(budget=10.0, db_path=db_path)
+        shield = WarderBox(budget=10.0, db_path=db_path)
         shield.set_masker(masker)
 
         @shield.tool(cost=0.01)
@@ -122,7 +122,7 @@ def test_replay_basic():
         db_path = f.name
 
     try:
-        shield = OpShield(budget=10.0, db_path=db_path)
+        shield = WarderBox(budget=10.0, db_path=db_path)
 
         @shield.tool(cost=0.01)
         def safe_query(sql: str):
@@ -137,7 +137,7 @@ def test_replay_basic():
 
         shield._logger.close()
 
-        replay_shield = OpShield(budget=10.0)
+        replay_shield = WarderBox(budget=10.0)
         replayer = ActionReplayer(
             db_path=db_path,
             executors={
@@ -160,7 +160,7 @@ def test_replay_dry_run():
         db_path = f.name
 
     try:
-        shield = OpShield(budget=10.0, db_path=db_path)
+        shield = WarderBox(budget=10.0, db_path=db_path)
 
         @shield.tool(cost=0.01)
         def ping(msg: str):
@@ -186,7 +186,7 @@ def test_replay_single_action():
         db_path = f.name
 
     try:
-        shield = OpShield(budget=10.0, db_path=db_path)
+        shield = WarderBox(budget=10.0, db_path=db_path)
 
         @shield.tool(cost=0.01)
         def calc(expr: str):
@@ -196,7 +196,7 @@ def test_replay_single_action():
         action_id = r.action.id
         shield._logger.close()
 
-        replay_shield = OpShield(budget=10.0)
+        replay_shield = WarderBox(budget=10.0)
         replayer = ActionReplayer(
             db_path=db_path,
             executors={"calc": lambda expr: f"= {expr}"},

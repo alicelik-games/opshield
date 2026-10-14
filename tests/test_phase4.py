@@ -9,10 +9,10 @@ import urllib.request
 
 sys.path.insert(0, "src")
 
-from opshield import OpShield, RetryPolicy, load_policy, validate_policy
-from opshield.retry import execute_with_retry
-from opshield.integrations.crewai import ShieldedCrewTool, shield_crewai_tools
-from opshield.dashboard import start_dashboard
+from warderbox import WarderBox, RetryPolicy, load_policy, validate_policy
+from warderbox.retry import execute_with_retry
+from warderbox.integrations.crewai import ShieldedCrewTool, shield_crewai_tools
+from warderbox.dashboard import start_dashboard
 
 
 # -- Policy-as-code --
@@ -144,7 +144,7 @@ def test_retry_conditional():
 def test_retry_in_shield():
     call_count = 0
 
-    shield = OpShield(budget=10.0)
+    shield = WarderBox(budget=10.0)
     policy = RetryPolicy(max_retries=3, backoff_base=0.01, jitter=0)
 
     @shield.tool(cost=0.1, retry=policy)
@@ -164,7 +164,7 @@ def test_retry_in_shield():
 # -- CrewAI --
 
 def test_crewai_shielded_tool():
-    shield = OpShield(budget=5.0)
+    shield = WarderBox(budget=5.0)
 
     tool = ShieldedCrewTool(
         shield=shield,
@@ -182,7 +182,7 @@ def test_crewai_shielded_tool():
 
 
 def test_crewai_shield_existing_tools():
-    shield = OpShield(budget=5.0)
+    shield = WarderBox(budget=5.0)
 
     class FakeCrewTool:
         def __init__(self, name, description):
@@ -206,7 +206,7 @@ def test_crewai_shield_existing_tools():
 # -- Dashboard --
 
 def test_dashboard_serves():
-    shield = OpShield(budget=10.0)
+    shield = WarderBox(budget=10.0)
 
     @shield.tool(cost=0.01)
     def ping(msg: str):
@@ -221,7 +221,7 @@ def test_dashboard_serves():
     try:
         resp = urllib.request.urlopen(f"http://127.0.0.1:{port}/")
         html = resp.read().decode()
-        assert "OpShield" in html
+        assert "WarderBox" in html
 
         resp = urllib.request.urlopen(f"http://127.0.0.1:{port}/api/stats")
         stats = json.loads(resp.read())

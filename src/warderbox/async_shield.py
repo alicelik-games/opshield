@@ -1,4 +1,4 @@
-"""Async version of OpShield for use with asyncio-based agent frameworks."""
+"""Async version of WarderBox for use with asyncio-based agent frameworks."""
 
 from __future__ import annotations
 
@@ -7,15 +7,15 @@ import functools
 import inspect
 from typing import Any, Callable
 
-from opshield.action import Action, ActionResult, RiskLevel
-from opshield.shield import OpShield
+from warderbox.action import Action, ActionResult, RiskLevel
+from warderbox.shield import WarderBox
 
 
-class AsyncOpShield(OpShield):
-    """OpShield with async tool support.
+class AsyncWarderBox(WarderBox):
+    """WarderBox with async tool support.
 
     Usage:
-        shield = AsyncOpShield(budget=5.00)
+        shield = AsyncWarderBox(budget=5.00)
 
         @shield.async_tool(cost=0.03)
         async def query_db(sql: str) -> str:

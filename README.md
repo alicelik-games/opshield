@@ -1,29 +1,29 @@
 <p align="center">
-  <img src="https://raw.githubusercontent.com/alicelik-games/opshield/main/assets/logo.png" alt="OpShield Logo" width="180"/>
+  <img src="https://raw.githubusercontent.com/alicelik-games/warderbox/main/assets/logo.png" alt="WarderBox Logo" width="180"/>
 </p>
 
-<h1 align="center">OpShield</h1>
+<h1 align="center">WarderBox</h1>
 
 <p align="center">
   <strong>The safety layer between AI agents and the real world.</strong>
 </p>
 
 <p align="center">
-  <a href="https://pypi.org/project/opshield/"><img src="https://img.shields.io/pypi/v/opshield?color=blue" alt="PyPI"/></a>
-  <a href="https://github.com/alicelik-games/opshield/blob/main/LICENSE"><img src="https://img.shields.io/badge/license-MIT-green" alt="License"/></a>
+  <a href="https://pypi.org/project/warderbox/"><img src="https://img.shields.io/pypi/v/warderbox?color=blue" alt="PyPI"/></a>
+  <a href="https://github.com/alicelik-games/warderbox/blob/main/LICENSE"><img src="https://img.shields.io/badge/license-MIT-green" alt="License"/></a>
   <a href="https://www.python.org/"><img src="https://img.shields.io/badge/python-3.11+-blue" alt="Python"/></a>
-  <a href="https://pypi.org/project/opshield/"><img src="https://img.shields.io/pypi/dm/opshield?color=orange" alt="Downloads"/></a>
+  <a href="https://pypi.org/project/warderbox/"><img src="https://img.shields.io/pypi/dm/warderbox?color=orange" alt="Downloads"/></a>
 </p>
 
-OpShield intercepts every tool call your AI agent makes and provides rollback, cost control, rate limiting, circuit breakers, approval workflows, distributed tracing, chaos testing, and compliance reporting — so agents can work autonomously without causing damage.
+WarderBox intercepts every tool call your AI agent makes and provides rollback, cost control, rate limiting, circuit breakers, approval workflows, distributed tracing, chaos testing, and compliance reporting — so agents can work autonomously without causing damage.
 
 **Zero mandatory dependencies. One `pip install`. Works with every major agent framework.**
 
-> **Market context:** With Guardrails AI acquired by Harvey (Sept 2026) and the AI agent safety market projected to grow from $610M to $6.85B at 41% CAGR, OpShield fills the gap as a comprehensive, framework-agnostic agent operations platform.
+> **Market context:** With Guardrails AI acquired by Harvey (Sept 2026) and the AI agent safety market projected to grow from $610M to $6.85B at 41% CAGR, WarderBox fills the gap as a comprehensive, framework-agnostic agent operations platform.
 
-## Why OpShield?
+## Why WarderBox?
 
-| Problem | OpShield Solution |
+| Problem | WarderBox Solution |
 |---------|---------------------|
 | Agent runs `DROP TABLE` | Auto-blocked by risk classification |
 | Agent overspends API budget | Budget limits + cost forecasting |
@@ -42,27 +42,27 @@ OpShield intercepts every tool call your AI agent makes and provides rollback, c
 ## Install
 
 ```bash
-pip install opshield
+pip install warderbox
 ```
 
 With framework integrations:
 
 ```bash
-pip install opshield[openai]      # OpenAI Agents SDK
-pip install opshield[anthropic]   # Anthropic Claude SDK
-pip install opshield[langchain]   # LangChain
-pip install opshield[crewai]      # CrewAI
-pip install opshield[autogen]     # Microsoft AutoGen
-pip install opshield[yaml]        # YAML policy files
-pip install opshield[all]         # Everything
+pip install warderbox[openai]      # OpenAI Agents SDK
+pip install warderbox[anthropic]   # Anthropic Claude SDK
+pip install warderbox[langchain]   # LangChain
+pip install warderbox[crewai]      # CrewAI
+pip install warderbox[autogen]     # Microsoft AutoGen
+pip install warderbox[yaml]        # YAML policy files
+pip install warderbox[all]         # Everything
 ```
 
 ## Quick Start
 
 ```python
-from opshield import OpShield
+from warderbox import WarderBox
 
-shield = OpShield(budget=5.00, auto_snapshot=True)
+shield = WarderBox(budget=5.00, auto_snapshot=True)
 
 @shield.tool(cost=0.03)
 def query_db(sql: str) -> str:
@@ -108,14 +108,14 @@ Define rules in JSON or YAML files:
 ```
 
 ```python
-from opshield import load_policy
+from warderbox import load_policy
 shield = load_policy("policy.json")
 ```
 
 ### Multi-Agent Support
 
 ```python
-from opshield import AgentPool
+from warderbox import AgentPool
 
 pool = AgentPool(default_budget=5.00)
 researcher = pool.register("researcher", budget=3.00)
@@ -129,9 +129,9 @@ pool.over_budget()  # ["researcher"] if over budget
 ### Rate Limiting
 
 ```python
-from opshield import OpShield, ToolLimit
+from warderbox import WarderBox, ToolLimit
 
-shield = OpShield(
+shield = WarderBox(
     budget=10.00,
     global_rpm=60,                                    # 60 calls/min globally
     tool_limits={"send_email": ToolLimit(rpm=5)},     # 5 emails/min
@@ -141,7 +141,7 @@ shield = OpShield(
 ### Retry with Backoff
 
 ```python
-from opshield import RetryPolicy
+from warderbox import RetryPolicy
 
 policy = RetryPolicy(max_retries=3, backoff_base=1.0, jitter=0.5)
 
@@ -153,7 +153,7 @@ def flaky_api(query: str) -> str:
 ### Sensitive Data Masking
 
 ```python
-from opshield import DataMasker
+from warderbox import DataMasker
 
 masker = DataMasker()
 shield.set_masker(masker)
@@ -166,10 +166,10 @@ masker.add_pattern("project_id", r"PROJ-\d{6}", "PROJ-******")
 
 ### Circuit Breaker
 
-Auto-disable tools that fail repeatedly (CLOSED → OPEN → HALF_OPEN):
+Auto-disable tools that fail repeatedly (CLOSED -> OPEN -> HALF_OPEN):
 
 ```python
-from opshield import CircuitBreaker
+from warderbox import CircuitBreaker
 
 cb = CircuitBreaker(failure_threshold=5, reset_timeout=60.0)
 shield.set_circuit_breaker(cb)
@@ -180,7 +180,7 @@ shield.set_circuit_breaker(cb)
 ### Human-in-the-Loop Approval
 
 ```python
-from opshield import ApprovalManager
+from warderbox import ApprovalManager
 
 approver = ApprovalManager(default_timeout=30.0)
 approver.require_approval("send_email", timeout=60.0)
@@ -196,7 +196,7 @@ approver.approve(request_id, approver="admin@company.com")
 Fine-grained tool access control per agent:
 
 ```python
-from opshield import CapabilityManager
+from warderbox import CapabilityManager
 
 caps = CapabilityManager()
 caps.grant("researcher", allow=["search", "read_file"])
@@ -208,7 +208,7 @@ shield.set_capabilities(caps)
 ### Compliance & Audit Reports
 
 ```python
-from opshield import ComplianceReporter
+from warderbox import ComplianceReporter
 
 reporter = ComplianceReporter(db_path="audit.db")
 report = reporter.generate_report(start="2026-01-01", end="2026-12-31")
@@ -224,7 +224,7 @@ html = reporter.to_html()      # Full HTML report
 OpenTelemetry-compatible span system:
 
 ```python
-from opshield import Tracer
+from warderbox import Tracer
 
 tracer = Tracer(service_name="my-agent")
 shield.set_tracer(tracer)
@@ -244,7 +244,7 @@ tracer.export_otlp()               # OTLP-compatible dict
 ### Cost Forecasting
 
 ```python
-from opshield import CostForecaster
+from warderbox import CostForecaster
 
 forecaster = CostForecaster(shield)
 report = forecaster.forecast()
@@ -257,7 +257,7 @@ print(report.trend)                    # "increasing" / "stable" / "decreasing"
 ### Agent Scoring & Benchmarking
 
 ```python
-from opshield import AgentScorer, PoolScorer
+from warderbox import AgentScorer, PoolScorer
 
 scorer = AgentScorer(shield, agent_name="my-bot")
 report = scorer.score()
@@ -274,7 +274,7 @@ print(pool_scorer.summary())   # Ranked leaderboard
 ### Web Dashboard
 
 ```bash
-opshield --db audit.db dashboard --port 8080
+warderbox --db audit.db dashboard --port 8080
 ```
 
 Real-time web UI showing actions, blocks, budget, and rate limits.
@@ -282,12 +282,12 @@ Real-time web UI showing actions, blocks, budget, and rate limits.
 ### Prometheus Metrics
 
 ```python
-from opshield.metrics import start_metrics_server
+from warderbox.metrics import start_metrics_server
 start_metrics_server(shield, port=9090)
 # Scrape http://localhost:9090/metrics
 ```
 
-Exports: `opshield_actions_total`, `opshield_actions_blocked_total`, `opshield_budget_spent_dollars`, per-tool and per-agent labels.
+Exports: `warderbox_actions_total`, `warderbox_actions_blocked_total`, `warderbox_budget_spent_dollars`, per-tool and per-agent labels.
 
 ### Webhook Notifications
 
@@ -307,7 +307,7 @@ shield.notifier.on("action_blocked", lambda event, data: print(f"Alert: {data}")
 Test agent resilience with controlled fault injection:
 
 ```python
-from opshield import ChaosEngine, FaultType
+from warderbox import ChaosEngine, FaultType
 
 chaos = ChaosEngine()
 shield.set_chaos(chaos)
@@ -329,7 +329,7 @@ chaos.add_fault("*", FaultType.LATENCY, latency_ms=500, probability=0.1)
 ### Action Replay
 
 ```python
-from opshield.replay import ActionReplayer
+from warderbox.replay import ActionReplayer
 
 replayer = ActionReplayer(db_path="audit.db", executors={"run_sql": my_fn})
 report = replayer.replay_all(shield)
@@ -339,9 +339,9 @@ print(f"Match rate: {report.success_rate:.0%}")
 ### Async Support
 
 ```python
-from opshield import AsyncOpShield
+from warderbox import AsyncWarderBox
 
-shield = AsyncOpShield(budget=5.00)
+shield = AsyncWarderBox(budget=5.00)
 
 @shield.async_tool(cost=0.05)
 async def async_query(sql: str) -> str:
@@ -360,32 +360,32 @@ async def async_query(sql: str) -> str:
 
 ```python
 # OpenAI
-from opshield.integrations.openai_agents import OpenAIShieldMiddleware
+from warderbox.integrations.openai_agents import OpenAIShieldMiddleware
 middleware = OpenAIShieldMiddleware(shield=shield, executors={...})
 
 # Anthropic
-from opshield.integrations.anthropic_sdk import AnthropicShieldMiddleware
+from warderbox.integrations.anthropic_sdk import AnthropicShieldMiddleware
 middleware = AnthropicShieldMiddleware(shield=shield, executors={...})
 
 # LangChain
-from opshield.integrations.langchain import shield_langchain_tools
+from warderbox.integrations.langchain import shield_langchain_tools
 
 # CrewAI
-from opshield.integrations.crewai import shield_crewai_tools
+from warderbox.integrations.crewai import shield_crewai_tools
 
 # AutoGen
-from opshield.integrations.autogen import shield_autogen_functions
+from warderbox.integrations.autogen import shield_autogen_functions
 ```
 
 ## CLI
 
 ```bash
-opshield stats                    # Action statistics
-opshield logs                     # View action log
-opshield logs --blocked           # Only blocked actions
-opshield export audit.json        # Export to JSON
-opshield validate policy.json     # Validate a policy file
-opshield dashboard --port 8080    # Start web dashboard
+warderbox stats                    # Action statistics
+warderbox logs                     # View action log
+warderbox logs --blocked           # Only blocked actions
+warderbox export audit.json        # Export to JSON
+warderbox validate policy.json     # Validate a policy file
+warderbox dashboard --port 8080    # Start web dashboard
 ```
 
 ## Risk Levels
@@ -400,23 +400,23 @@ opshield dashboard --port 8080    # Start web dashboard
 ## Architecture
 
 ```
-Agent → OpShield → Tool
-         ├── Capability Check (permissions)
-         ├── Circuit Breaker (fail-fast)
-         ├── Risk Classification (rules engine)
-         ├── Approval Workflow (human-in-the-loop)
-         ├── Budget Check + Forecast
-         ├── Rate Limit Check
-         ├── Snapshot (for rollback)
-         ├── Chaos Injection (testing)
-         ├── Execute (or simulate in test mode)
-         ├── Retry (on failure, with backoff)
-         ├── Data Masking (for logs)
-         ├── Log to SQLite
-         ├── Emit webhook/callback events
-         ├── Record span (distributed tracing)
-         ├── Agent Scoring
-         └── Prometheus metrics
+Agent -> WarderBox -> Tool
+         |-- Capability Check (permissions)
+         |-- Circuit Breaker (fail-fast)
+         |-- Risk Classification (rules engine)
+         |-- Approval Workflow (human-in-the-loop)
+         |-- Budget Check + Forecast
+         |-- Rate Limit Check
+         |-- Snapshot (for rollback)
+         |-- Chaos Injection (testing)
+         |-- Execute (or simulate in test mode)
+         |-- Retry (on failure, with backoff)
+         |-- Data Masking (for logs)
+         |-- Log to SQLite
+         |-- Emit webhook/callback events
+         |-- Record span (distributed tracing)
+         |-- Agent Scoring
+         |-- Prometheus metrics
 ```
 
 ## Stats
@@ -428,7 +428,7 @@ Agent → OpShield → Tool
 
 ## Author
 
-**Ali Çelik** — [LinkedIn](https://linkedin.com/in/alicelik1980) · [Email](mailto:alicelik1980@gmail.com)
+**Ali Celik** — [LinkedIn](https://linkedin.com/in/alicelik1980) · [Email](mailto:alicelik1980@gmail.com)
 
 ## License
 

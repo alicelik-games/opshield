@@ -6,10 +6,10 @@ import urllib.request
 
 sys.path.insert(0, "src")
 
-from opshield import OpShield, AgentPool
-from opshield.multiagent import AgentPool
-from opshield.integrations.autogen import shield_autogen_functions, AutoGenShieldProxy
-from opshield.metrics import prometheus_metrics, start_metrics_server, multiagent_metrics
+from warderbox import WarderBox, AgentPool
+from warderbox.multiagent import AgentPool
+from warderbox.integrations.autogen import shield_autogen_functions, AutoGenShieldProxy
+from warderbox.metrics import prometheus_metrics, start_metrics_server, multiagent_metrics
 
 
 # -- Multi-agent --
@@ -107,7 +107,7 @@ def test_agent_pool_duplicate_registration():
 # -- AutoGen --
 
 def test_autogen_shield_functions():
-    shield = OpShield(budget=5.0)
+    shield = WarderBox(budget=5.0)
 
     def search(query: str) -> str:
         return f"results: {query}"
@@ -129,7 +129,7 @@ def test_autogen_shield_functions():
 
 
 def test_autogen_proxy():
-    shield = OpShield(budget=5.0)
+    shield = WarderBox(budget=5.0)
 
     proxy = AutoGenShieldProxy(shield, cost_map={"calc": 0.01})
 
@@ -145,7 +145,7 @@ def test_autogen_proxy():
 # -- Prometheus Metrics --
 
 def test_prometheus_metrics_format():
-    shield = OpShield(budget=10.0)
+    shield = WarderBox(budget=10.0)
 
     @shield.tool(cost=0.05)
     def query(sql: str):
@@ -157,17 +157,17 @@ def test_prometheus_metrics_format():
 
     text = prometheus_metrics(shield)
 
-    assert "opshield_actions_total 3" in text
-    assert "opshield_actions_blocked_total 1" in text
-    assert "opshield_actions_successful_total 2" in text
-    assert "opshield_budget_spent_dollars" in text
-    assert 'opshield_tool_calls_last_minute{tool="query"}' in text
+    assert "warderbox_actions_total 3" in text
+    assert "warderbox_actions_blocked_total 1" in text
+    assert "warderbox_actions_successful_total 2" in text
+    assert "warderbox_budget_spent_dollars" in text
+    assert 'warderbox_tool_calls_last_minute{tool="query"}' in text
     assert "# TYPE" in text
     assert "# HELP" in text
 
 
 def test_prometheus_metrics_server():
-    shield = OpShield(budget=10.0)
+    shield = WarderBox(budget=10.0)
 
     @shield.tool(cost=0.01)
     def ping(msg: str):
@@ -181,7 +181,7 @@ def test_prometheus_metrics_server():
     try:
         resp = urllib.request.urlopen(f"http://127.0.0.1:{port}/metrics")
         text = resp.read().decode()
-        assert "opshield_actions_total 1" in text
+        assert "warderbox_actions_total 1" in text
         assert resp.headers["Content-Type"].startswith("text/plain")
     finally:
         server.shutdown()
@@ -204,8 +204,8 @@ def test_multiagent_metrics():
     tool2(x="b")
 
     text = multiagent_metrics(pool)
-    assert "opshield_pool_agents_total 2" in text
-    assert "opshield_pool_actions_total 2" in text
+    assert "warderbox_pool_agents_total 2" in text
+    assert "warderbox_pool_actions_total 2" in text
     assert 'agent="agent1"' in text
     assert 'agent="agent2"' in text
 

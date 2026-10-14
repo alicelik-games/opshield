@@ -1,13 +1,13 @@
-"""OpShield integration for CrewAI.
+"""WarderBox integration for CrewAI.
 
 Zero-dependency: does not import crewai. Provides a ShieldedCrewTool
-that wraps any CrewAI-compatible tool through OpShield.
+that wraps any CrewAI-compatible tool through WarderBox.
 
 Usage:
-    from opshield import OpShield
-    from opshield.integrations.crewai import ShieldedCrewTool, shield_crewai_tools
+    from warderbox import WarderBox
+    from warderbox.integrations.crewai import ShieldedCrewTool, shield_crewai_tools
 
-    shield = OpShield(budget=5.00)
+    shield = WarderBox(budget=5.00)
 
     # Wrap individual tools
     tool = ShieldedCrewTool(
@@ -26,19 +26,19 @@ from __future__ import annotations
 
 from typing import Any, Callable
 
-from opshield.action import Action, ActionResult
-from opshield.shield import OpShield
+from warderbox.action import Action, ActionResult
+from warderbox.shield import WarderBox
 
 
 class ShieldedCrewTool:
-    """A CrewAI-compatible tool that routes execution through OpShield.
+    """A CrewAI-compatible tool that routes execution through WarderBox.
 
     Mimics CrewAI's BaseTool interface without importing crewai.
     """
 
     def __init__(
         self,
-        shield: OpShield,
+        shield: WarderBox,
         name: str,
         description: str,
         func: Callable[..., str],
@@ -85,11 +85,11 @@ class ShieldedCrewTool:
 
 
 def shield_crewai_tools(
-    shield: OpShield,
+    shield: WarderBox,
     tools: list[Any],
     cost_map: dict[str, float] | None = None,
 ) -> list[ShieldedCrewTool]:
-    """Wrap a list of existing CrewAI tools with OpShield protection.
+    """Wrap a list of existing CrewAI tools with WarderBox protection.
 
     Each tool must have .name, .description, and ._run or .run attributes.
     """

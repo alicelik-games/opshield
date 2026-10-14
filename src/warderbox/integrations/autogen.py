@@ -1,13 +1,13 @@
-"""OpShield integration for Microsoft AutoGen.
+"""WarderBox integration for Microsoft AutoGen.
 
 Zero-dependency: does not import autogen. Provides a wrapper that
-intercepts AutoGen function calls through OpShield.
+intercepts AutoGen function calls through WarderBox.
 
 Usage:
-    from opshield import OpShield
-    from opshield.integrations.autogen import shield_autogen_functions
+    from warderbox import WarderBox
+    from warderbox.integrations.autogen import shield_autogen_functions
 
-    shield = OpShield(budget=5.00)
+    shield = WarderBox(budget=5.00)
 
     # Your functions that AutoGen agents will call
     def search(query: str) -> str:
@@ -31,16 +31,16 @@ from __future__ import annotations
 import functools
 from typing import Any, Callable
 
-from opshield.action import Action, ActionResult
-from opshield.shield import OpShield
+from warderbox.action import Action, ActionResult
+from warderbox.shield import WarderBox
 
 
 def shield_autogen_functions(
-    shield: OpShield,
+    shield: WarderBox,
     functions: dict[str, Callable],
     cost_map: dict[str, float] | None = None,
 ) -> dict[str, Callable]:
-    """Wrap AutoGen-compatible functions with OpShield protection.
+    """Wrap AutoGen-compatible functions with WarderBox protection.
 
     Returns a dict of wrapped functions with the same signatures.
     When a function is blocked, it returns a string explaining why
@@ -57,7 +57,7 @@ def shield_autogen_functions(
 
 
 def _wrap_function(
-    shield: OpShield,
+    shield: WarderBox,
     name: str,
     func: Callable,
     cost: float,
@@ -80,7 +80,7 @@ def _wrap_function(
         )
 
         if result.blocked:
-            return f"[BLOCKED by OpShield] {result.block_reason}"
+            return f"[BLOCKED by WarderBox] {result.block_reason}"
         if result.error:
             return f"[ERROR] {result.error}"
         return str(result.output) if result.output is not None else ""
@@ -103,7 +103,7 @@ class AutoGenShieldProxy:
 
     def __init__(
         self,
-        shield: OpShield,
+        shield: WarderBox,
         cost_map: dict[str, float] | None = None,
     ) -> None:
         self._shield = shield

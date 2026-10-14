@@ -1,4 +1,4 @@
-"""OpShield — the main class that ties together rollback, cost control, and testing."""
+"""WarderBox — the main class that ties together rollback, cost control, and testing."""
 
 from __future__ import annotations
 
@@ -8,21 +8,21 @@ from dataclasses import dataclass, field
 from enum import Enum
 from typing import Any, Callable
 
-from opshield.action import Action, ActionResult, RiskLevel
-from opshield.approval import ApprovalManager
-from opshield.budget import BudgetTracker
-from opshield.capabilities import CapabilityManager
-from opshield.chaos import ChaosEngine
-from opshield.circuitbreaker import CircuitBreaker
-from opshield.config import parse_config, rules_from_config
-from opshield.logger import ActionLogger
-from opshield.masking import DataMasker
-from opshield.ratelimit import RateLimiter, ToolLimit
-from opshield.rules import RuleEngine
-from opshield.snapshot import SnapshotStore
-from opshield.retry import RetryPolicy, execute_with_retry
-from opshield.tracing import Tracer
-from opshield.webhooks import EventNotifier
+from warderbox.action import Action, ActionResult, RiskLevel
+from warderbox.approval import ApprovalManager
+from warderbox.budget import BudgetTracker
+from warderbox.capabilities import CapabilityManager
+from warderbox.chaos import ChaosEngine
+from warderbox.circuitbreaker import CircuitBreaker
+from warderbox.config import parse_config, rules_from_config
+from warderbox.logger import ActionLogger
+from warderbox.masking import DataMasker
+from warderbox.ratelimit import RateLimiter, ToolLimit
+from warderbox.rules import RuleEngine
+from warderbox.snapshot import SnapshotStore
+from warderbox.retry import RetryPolicy, execute_with_retry
+from warderbox.tracing import Tracer
+from warderbox.webhooks import EventNotifier
 
 
 class Mode(Enum):
@@ -33,11 +33,11 @@ class Mode(Enum):
 OnBlockCallback = Callable[[Action, list[str]], bool]
 
 
-class OpShield:
+class WarderBox:
     """Wrap agent tools with rollback, cost control, and testing.
 
     Usage:
-        shield = OpShield(budget=5.00, auto_snapshot=True)
+        shield = WarderBox(budget=5.00, auto_snapshot=True)
 
         @shield.tool(cost=0.03)
         def query_db(sql: str) -> str:
@@ -85,8 +85,8 @@ class OpShield:
         self._chaos: ChaosEngine | None = None
 
     @classmethod
-    def from_config(cls, config: dict[str, Any]) -> "OpShield":
-        """Create an OpShield from a config dict."""
+    def from_config(cls, config: dict[str, Any]) -> "WarderBox":
+        """Create an WarderBox from a config dict."""
         parsed = parse_config(config)
 
         tool_limits = {}

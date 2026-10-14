@@ -79,7 +79,7 @@ class Span:
 class Tracer:
     """Lightweight tracing system for agent actions."""
 
-    def __init__(self, service_name: str = "opshield") -> None:
+    def __init__(self, service_name: str = "warderbox") -> None:
         self._service_name = service_name
         self._spans: list[Span] = []
         self._active_trace_id: str | None = None
@@ -189,7 +189,7 @@ class Tracer:
             "resourceSpans": [{
                 "resource": {"attributes": {"service.name": self._service_name}},
                 "scopeSpans": [{
-                    "scope": {"name": "opshield"},
+                    "scope": {"name": "warderbox"},
                     "spans": [s.to_dict() for s in self._spans],
                 }],
             }]
@@ -206,7 +206,7 @@ class Tracer:
                     ]
                 },
                 "scopeSpans": [{
-                    "scope": {"name": "opshield"},
+                    "scope": {"name": "warderbox"},
                     "spans": [self._span_to_otlp(s) for s in self._spans],
                 }],
             }]

@@ -1,4 +1,4 @@
-"""OpShield — Full End-to-End Demo
+"""WarderBox — Full End-to-End Demo
 
 Demonstrates every major feature in a single script:
 - Risk classification & auto-blocking
@@ -20,8 +20,8 @@ Run: python3 examples/demo_full.py
 import sys, os, tempfile
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "src"))
 
-from opshield import (
-    OpShield, AgentPool, AgentScorer, PoolScorer,
+from warderbox import (
+    WarderBox, AgentPool, AgentScorer, PoolScorer,
     CapabilityManager, CircuitBreaker, ChaosEngine, FaultType,
     CostForecaster, ComplianceReporter, DataMasker, Tracer,
 )
@@ -47,7 +47,7 @@ def main():
     separator("1. Basic Shield: Risk Classification & Budget")
     # =========================================================
 
-    shield = OpShield(budget=5.00, auto_snapshot=True, db_path=db_path)
+    shield = WarderBox(budget=5.00, auto_snapshot=True, db_path=db_path)
 
     @shield.tool(cost=0.05, snapshot_state=lambda: dict(db_data), restore_state=lambda s: db_data.update(s))
     def query_db(sql: str) -> str:
@@ -239,7 +239,7 @@ def main():
     separator("DONE")
     # =========================================================
 
-    print("OpShield full demo completed successfully!")
+    print("WarderBox full demo completed successfully!")
     print(f"\nFeatures demonstrated:")
     print(f"  - Risk classification & auto-blocking")
     print(f"  - Budget control & cost tracking")

@@ -1,4 +1,4 @@
-"""OpShield Web Dashboard — real-time monitoring with zero dependencies.
+"""WarderBox Web Dashboard — real-time monitoring with zero dependencies.
 
 Serves a single-page dashboard that shows:
 - Live action stats (total, blocked, errors, cost)
@@ -9,9 +9,9 @@ Serves a single-page dashboard that shows:
 Uses Python's built-in http.server. No external packages needed.
 
 Usage:
-    from opshield.dashboard import start_dashboard
+    from warderbox.dashboard import start_dashboard
 
-    shield = OpShield(budget=10.0, db_path="audit.db")
+    shield = WarderBox(budget=10.0, db_path="audit.db")
     # ... register tools, do work ...
 
     start_dashboard(shield, port=8080)
@@ -26,14 +26,14 @@ from http.server import HTTPServer, BaseHTTPRequestHandler
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
-    from opshield.shield import OpShield
+    from warderbox.shield import WarderBox
 
 _DASHBOARD_HTML = """<!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>OpShield Dashboard</title>
+<title>WarderBox Dashboard</title>
 <style>
 :root {
   --bg: #0f172a; --surface: #1e293b; --border: #334155;
@@ -81,7 +81,7 @@ tr:last-child td { border-bottom: none; }
 </head>
 <body>
 <div class="header">
-  <h1>OpShield</h1>
+  <h1>WarderBox</h1>
   <span class="badge">LIVE</span>
   <span class="auto-refresh">Auto-refresh: 3s</span>
 </div>
@@ -148,7 +148,7 @@ setInterval(refresh, 3000);
 
 
 class _DashboardHandler(BaseHTTPRequestHandler):
-    shield: OpShield
+    shield: WarderBox
 
     def do_GET(self):
         if self.path == "/" or self.path == "/index.html":
@@ -174,16 +174,16 @@ class _DashboardHandler(BaseHTTPRequestHandler):
 
 
 def start_dashboard(
-    shield: OpShield,
+    shield: WarderBox,
     port: int = 8080,
     host: str = "127.0.0.1",
     open_browser: bool = True,
     background: bool = True,
 ) -> HTTPServer:
-    """Start the OpShield web dashboard.
+    """Start the WarderBox web dashboard.
 
     Args:
-        shield: The OpShield instance to monitor.
+        shield: The WarderBox instance to monitor.
         port: Port to serve on (default 8080).
         host: Host to bind to (default localhost).
         open_browser: Open the dashboard in the default browser.

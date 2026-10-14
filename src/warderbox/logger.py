@@ -8,7 +8,7 @@ import time
 from pathlib import Path
 from typing import Any
 
-from opshield.action import ActionResult
+from warderbox.action import ActionResult
 
 _SCHEMA = """
 CREATE TABLE IF NOT EXISTS actions (
@@ -34,7 +34,7 @@ CREATE INDEX IF NOT EXISTS idx_actions_blocked ON actions(blocked);
 class ActionLogger:
     """Logs every action to a SQLite database for audit and analysis."""
 
-    def __init__(self, db_path: str | Path = "opshield.db", masker=None) -> None:
+    def __init__(self, db_path: str | Path = "warderbox.db", masker=None) -> None:
         self._path = Path(db_path)
         self._conn = sqlite3.connect(str(self._path))
         self._conn.row_factory = sqlite3.Row

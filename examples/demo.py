@@ -1,9 +1,9 @@
-"""OpShield demo — shows rollback, cost control, and test mode in action."""
+"""WarderBox demo — shows rollback, cost control, and test mode in action."""
 
 import sys
 sys.path.insert(0, "src")
 
-from opshield import OpShield
+from warderbox import WarderBox
 
 # ============================================================
 # 1. Simulated database (in-memory)
@@ -32,7 +32,7 @@ def restore_db_state(state):
 # ============================================================
 # 2. Create shield with $1.00 budget
 # ============================================================
-shield = OpShield(
+shield = WarderBox(
     budget=1.00,
     auto_snapshot=True,
     mode="production",
@@ -77,7 +77,7 @@ def run_sql(query: str):
 # ============================================================
 def main():
     print("=" * 60)
-    print("  OpShield Demo")
+    print("  WarderBox Demo")
     print("=" * 60)
 
     # -- Normal operations --

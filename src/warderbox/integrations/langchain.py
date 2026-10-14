@@ -1,12 +1,12 @@
 """LangChain integration.
 
-Wraps LangChain tools so every invocation passes through OpShield.
+Wraps LangChain tools so every invocation passes through WarderBox.
 
 Usage:
-    from opshield import OpShield
-    from opshield.integrations.langchain import ShieldedTool
+    from warderbox import WarderBox
+    from warderbox.integrations.langchain import ShieldedTool
 
-    shield = OpShield(budget=5.00)
+    shield = WarderBox(budget=5.00)
 
     # Wrap any LangChain-style tool
     safe_tool = ShieldedTool(
@@ -25,23 +25,23 @@ from __future__ import annotations
 
 from typing import Any, Callable
 
-from opshield.action import Action, ActionResult
-from opshield.shield import OpShield
+from warderbox.action import Action, ActionResult
+from warderbox.shield import WarderBox
 
 
 class ShieldedTool:
     """A tool wrapper compatible with LangChain's tool interface.
 
     This class mimics LangChain's BaseTool without importing langchain,
-    so opshield has zero mandatory dependencies.
+    so warderbox has zero mandatory dependencies.
 
     When LangChain calls .run() or ._run(), the call goes through
-    OpShield's interceptor.
+    WarderBox's interceptor.
     """
 
     def __init__(
         self,
-        shield: OpShield,
+        shield: WarderBox,
         name: str,
         func: Callable,
         description: str = "",
@@ -88,14 +88,14 @@ class ShieldedTool:
 
 
 def shield_langchain_tools(
-    shield: OpShield,
+    shield: WarderBox,
     tools: list[Any],
     cost_map: dict[str, float] | None = None,
 ) -> list[ShieldedTool]:
-    """Wrap a list of existing LangChain tools with OpShield.
+    """Wrap a list of existing LangChain tools with WarderBox.
 
     Args:
-        shield: The OpShield instance.
+        shield: The WarderBox instance.
         tools: List of LangChain BaseTool instances.
         cost_map: Optional {tool_name: cost_per_call} mapping.
 

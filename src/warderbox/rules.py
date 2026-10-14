@@ -6,7 +6,7 @@ import re
 from dataclasses import dataclass, field
 from typing import Callable
 
-from opshield.action import Action, RiskLevel
+from warderbox.action import Action, RiskLevel
 
 # SQL patterns that indicate destructive operations
 _DESTRUCTIVE_SQL = re.compile(

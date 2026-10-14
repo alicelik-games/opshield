@@ -1,12 +1,12 @@
 """OpenAI Agents SDK integration.
 
-Wraps OpenAI function tools so every call passes through OpShield.
+Wraps OpenAI function tools so every call passes through WarderBox.
 
 Usage:
-    from opshield import OpShield
-    from opshield.integrations.openai_agents import shield_openai_tools
+    from warderbox import WarderBox
+    from warderbox.integrations.openai_agents import shield_openai_tools
 
-    shield = OpShield(budget=5.00)
+    shield = WarderBox(budget=5.00)
     tools = [my_tool_a, my_tool_b]
     safe_tools = shield_openai_tools(shield, tools)
 """
@@ -17,12 +17,12 @@ import functools
 import json
 from typing import Any, Callable
 
-from opshield.action import Action, ActionResult
-from opshield.shield import OpShield
+from warderbox.action import Action, ActionResult
+from warderbox.shield import WarderBox
 
 
 def shield_openai_tools(
-    shield: OpShield,
+    shield: WarderBox,
     tools: list[dict[str, Any]],
     cost_map: dict[str, float] | None = None,
 ) -> list[dict[str, Any]]:
@@ -36,7 +36,7 @@ def shield_openai_tools(
     through the shield.
 
     Args:
-        shield: The OpShield instance.
+        shield: The WarderBox instance.
         tools: List of OpenAI tool definitions.
         cost_map: Optional {tool_name: cost_per_call} mapping.
 
@@ -64,7 +64,7 @@ def shield_openai_tools(
 
 
 def execute_tool_call(
-    shield: OpShield,
+    shield: WarderBox,
     tool_name: str,
     arguments: str | dict,
     executor: Callable[..., Any],
@@ -74,7 +74,7 @@ def execute_tool_call(
     This is the function you call when the model returns a tool_call.
 
     Args:
-        shield: The OpShield instance.
+        shield: The WarderBox instance.
         tool_name: The function name from the tool call.
         arguments: The arguments (JSON string or dict).
         executor: The actual function to call.
@@ -109,7 +109,7 @@ class OpenAIShieldMiddleware:
 
     def __init__(
         self,
-        shield: OpShield,
+        shield: WarderBox,
         executors: dict[str, Callable],
         cost_map: dict[str, float] | None = None,
     ) -> None:

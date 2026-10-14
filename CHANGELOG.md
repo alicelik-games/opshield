@@ -1,6 +1,14 @@
 # Changelog
 
-All notable changes to OpShield are documented here.
+All notable changes to WarderBox (formerly OpShield) are documented here.
+
+## [0.3.0] - 2026-10-15
+
+### Changed — Rename
+- **Project renamed from OpShield to WarderBox** to avoid trademark conflict with GE Digital's OpShield
+- All imports: `from warderbox import WarderBox` (was `from opshield import OpShield`)
+- CLI command: `warderbox` (was `opshield`)
+- PyPI package: `pip install warderbox`
 
 ## [0.2.0] - 2026-10-08
 
@@ -29,7 +37,7 @@ All notable changes to OpShield are documented here.
 ## [0.1.0] - 2026-10-08
 
 ### Added — Phase 1: Core
-- `OpShield` main class with tool decorator
+- `WarderBox` main class with tool decorator
 - Risk classification engine (LOW/MEDIUM/HIGH/CRITICAL)
 - Budget tracking with per-action cost
 - State snapshots and rollback

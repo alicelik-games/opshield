@@ -9,15 +9,15 @@ import time
 
 sys.path.insert(0, "src")
 
-from opshield import (
-    OpShield,
+from warderbox import (
+    WarderBox,
     ApprovalManager,
     CapabilityManager,
     CircuitBreaker,
     CircuitState,
     ComplianceReporter,
 )
-from opshield.approval import ApprovalDecision
+from warderbox.approval import ApprovalDecision
 
 
 # -- Circuit Breaker --
@@ -110,7 +110,7 @@ def test_circuit_breaker_callbacks():
 
 def test_circuit_breaker_in_shield():
     cb = CircuitBreaker(failure_threshold=2)
-    shield = OpShield(budget=10.0)
+    shield = WarderBox(budget=10.0)
     shield.set_circuit_breaker(cb)
 
     call_count = 0
@@ -300,7 +300,7 @@ def test_capabilities_in_shield():
     caps = CapabilityManager()
     caps.grant("test_agent", deny=["dangerous_tool"])
 
-    shield = OpShield(budget=10.0)
+    shield = WarderBox(budget=10.0)
     shield.set_capabilities(caps)
     shield._agent_name = "test_agent"
 
@@ -330,7 +330,7 @@ def test_compliance_basic_report():
         db_path = f.name
 
     try:
-        shield = OpShield(budget=10.0, db_path=db_path)
+        shield = WarderBox(budget=10.0, db_path=db_path)
 
         @shield.tool(cost=0.05)
         def search(q: str):
@@ -365,7 +365,7 @@ def test_compliance_export_json():
         json_path = f.name
 
     try:
-        shield = OpShield(budget=10.0, db_path=db_path)
+        shield = WarderBox(budget=10.0, db_path=db_path)
 
         @shield.tool(cost=0.01)
         def ping(msg: str):
@@ -393,7 +393,7 @@ def test_compliance_html_report():
         db_path = f.name
 
     try:
-        shield = OpShield(budget=10.0, db_path=db_path)
+        shield = WarderBox(budget=10.0, db_path=db_path)
 
         @shield.tool(cost=0.01)
         def task(n: str):
@@ -405,7 +405,7 @@ def test_compliance_html_report():
 
         reporter = ComplianceReporter(db_path)
         html = reporter.to_html()
-        assert "OpShield Audit Report" in html
+        assert "WarderBox Audit Report" in html
         assert "Total Actions" in html
     finally:
         os.unlink(db_path)
@@ -416,7 +416,7 @@ def test_compliance_anomaly_detection():
         db_path = f.name
 
     try:
-        shield = OpShield(budget=100.0, db_path=db_path)
+        shield = WarderBox(budget=100.0, db_path=db_path)
 
         @shield.tool(cost=0.01)
         def action(sql: str):

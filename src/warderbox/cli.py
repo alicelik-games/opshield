@@ -1,4 +1,4 @@
-"""OpShield CLI — view audit logs and stats from the command line."""
+"""WarderBox CLI — view audit logs and stats from the command line."""
 
 from __future__ import annotations
 
@@ -6,8 +6,8 @@ import argparse
 import json
 import sys
 
-from opshield.logger import ActionLogger
-from opshield.policy import validate_policy
+from warderbox.logger import ActionLogger
+from warderbox.policy import validate_policy
 
 
 def cmd_stats(args: argparse.Namespace) -> None:
@@ -59,25 +59,25 @@ def cmd_validate(args: argparse.Namespace) -> None:
 
 
 def cmd_dashboard(args: argparse.Namespace) -> None:
-    from opshield.dashboard import start_dashboard
-    from opshield.policy import load_policy
+    from warderbox.dashboard import start_dashboard
+    from warderbox.policy import load_policy
 
-    if args.db == "opshield.db":
-        from opshield import OpShield
-        shield = OpShield(db_path=args.db)
+    if args.db == "warderbox.db":
+        from warderbox import WarderBox
+        shield = WarderBox(db_path=args.db)
     else:
-        shield = OpShield(db_path=args.db)
+        shield = WarderBox(db_path=args.db)
 
-    print(f"OpShield Dashboard: http://127.0.0.1:{args.port}")
+    print(f"WarderBox Dashboard: http://127.0.0.1:{args.port}")
     start_dashboard(shield, port=args.port, background=False)
 
 
 def main() -> None:
     parser = argparse.ArgumentParser(
-        prog="opshield",
-        description="OpShield — audit logs and stats for AI agent actions",
+        prog="warderbox",
+        description="WarderBox — audit logs and stats for AI agent actions",
     )
-    parser.add_argument("--db", default="opshield.db", help="Path to SQLite database")
+    parser.add_argument("--db", default="warderbox.db", help="Path to SQLite database")
 
     sub = parser.add_subparsers(dest="command")
 

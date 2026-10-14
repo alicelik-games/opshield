@@ -53,7 +53,7 @@ class AuditReport:
     @property
     def summary(self) -> str:
         lines = [
-            f"=== OpShield Audit Report ===",
+            f"=== WarderBox Audit Report ===",
             f"Generated: {self.generated_at}",
             f"Period: {self.period_start or 'all'} — {self.period_end or 'now'}",
             f"",
@@ -104,7 +104,7 @@ class AuditReport:
 
 
 class ComplianceReporter:
-    """Generates audit reports from OpShield SQLite logs."""
+    """Generates audit reports from WarderBox SQLite logs."""
 
     def __init__(self, db_path: str) -> None:
         self._db_path = db_path
@@ -262,7 +262,7 @@ class ComplianceReporter:
 <html>
 <head>
 <meta charset="utf-8">
-<title>OpShield Audit Report</title>
+<title>WarderBox Audit Report</title>
 <style>
 body {{ font-family: system-ui, sans-serif; max-width: 900px; margin: 2rem auto; padding: 0 1rem; background: #0d1117; color: #c9d1d9; }}
 h1 {{ color: #58a6ff; border-bottom: 1px solid #30363d; padding-bottom: 0.5rem; }}
@@ -279,7 +279,7 @@ th {{ color: #8b949e; }}
 </style>
 </head>
 <body>
-<h1>OpShield Audit Report</h1>
+<h1>WarderBox Audit Report</h1>
 <p>Generated: {d['generated_at']}<br>
 Period: {d['period_start'] or 'all'} &mdash; {d['period_end'] or 'now'}</p>
 
