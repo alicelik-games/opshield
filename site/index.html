@@ -106,6 +106,7 @@ footer { text-align: center; padding: 40px 24px; border-top: 1px solid var(--bor
   .stats-bar { gap: 24px; }
   .pipeline-flow { flex-direction: column; }
   .pipeline-arrow { transform: rotate(90deg); }
+  .layers-grid { grid-template-columns: 1fr !important; }
 }
 </style>
 </head>
@@ -305,6 +306,34 @@ footer { text-align: center; padding: 40px 24px; border-top: 1px solid var(--bor
       <tr><td>Framework Agnostic</td><td class="yes">5 frameworks</td><td class="partial">LLM-focused</td><td class="no">LangChain only</td><td class="yes">Yes</td></tr>
       <tr><td>Zero Dependencies</td><td class="yes">Yes</td><td class="no">Many</td><td class="no">Many</td><td class="yes">Yes</td></tr>
     </table>
+  </div>
+</section>
+
+<section class="complementary">
+  <div class="container">
+    <h2>Different Layers, Not Competitors</h2>
+    <p class="sub" style="text-align:center; color:var(--muted); max-width:700px; margin:0 auto 40px;">WarderBox doesn't replace LangChain or Guardrails AI — it fills the gap neither covers. They work together.</p>
+    <div class="layers-grid" style="display:grid; grid-template-columns:repeat(3,1fr); gap:24px; margin-bottom:16px;">
+      <div class="layer-card" style="background:var(--bg2); border:1px solid var(--border); border-radius:12px; padding:28px; text-align:center;">
+        <div style="font-size:1.5rem; margin-bottom:8px;">🧠</div>
+        <h3 style="color:var(--accent); margin-bottom:8px;">LangChain</h3>
+        <p style="font-size:0.95rem; color:var(--muted); margin-bottom:12px;"><strong style="color:var(--text);">Runs the agent</strong></p>
+        <p style="font-size:0.85rem; color:var(--muted);">Chains, RAG, memory, tool calling, agent orchestration. Decides <em>what</em> to do.</p>
+      </div>
+      <div class="layer-card" style="background:var(--bg2); border:1px solid var(--border); border-radius:12px; padding:28px; text-align:center;">
+        <div style="font-size:1.5rem; margin-bottom:8px;">✅</div>
+        <h3 style="color:var(--green); margin-bottom:8px;">Guardrails AI</h3>
+        <p style="font-size:0.95rem; color:var(--muted); margin-bottom:12px;"><strong style="color:var(--text);">Validates LLM text</strong></p>
+        <p style="font-size:0.85rem; color:var(--muted);">JSON schema, hallucination checks, format validation. Controls <em>what the LLM says</em>.</p>
+      </div>
+      <div class="layer-card" style="background:var(--bg2); border:1px solid rgba(59,130,246,0.4); border-radius:12px; padding:28px; text-align:center;">
+        <div style="font-size:1.5rem; margin-bottom:8px;">🛡️</div>
+        <h3 style="color:var(--accent); margin-bottom:8px;">WarderBox</h3>
+        <p style="font-size:0.95rem; color:var(--muted); margin-bottom:12px;"><strong style="color:var(--text);">Controls tool execution</strong></p>
+        <p style="font-size:0.85rem; color:var(--muted);">Budget, rollback, timeout, circuit breaker, idempotency, quotas. Controls <em>what the agent does</em>.</p>
+      </div>
+    </div>
+    <p style="text-align:center; color:var(--muted); font-size:0.9rem;">Use LangChain to build your agent → WarderBox to keep it safe → Guardrails to validate its text. All three via <code style="background:var(--bg3); padding:2px 8px; border-radius:4px;">shield_langchain_tools()</code></p>
   </div>
 </section>
 
