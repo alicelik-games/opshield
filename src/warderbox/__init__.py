@@ -19,6 +19,8 @@ from warderbox.retry import RetryPolicy
 from warderbox.scoring import AgentScorer, PoolScorer
 from warderbox.tracing import Tracer
 from warderbox.webhooks import EventNotifier
+from warderbox.routing import ModelRouter, ComplexityClassifier, Complexity
+from warderbox.anomaly import AnomalyDetector, AnomalyType, AnomalyAlert
 from warderbox.config import rules_from_config
 
 __all__ = [
@@ -46,6 +48,12 @@ __all__ = [
     "RetryPolicy",
     "Tracer",
     "EventNotifier",
+    "ModelRouter",
+    "ComplexityClassifier",
+    "Complexity",
+    "AnomalyDetector",
+    "AnomalyType",
+    "AnomalyAlert",
     "load_policy",
     "validate_policy",
     "rules_from_config",
