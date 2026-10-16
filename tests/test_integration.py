@@ -1669,3 +1669,166 @@ def test_100_version_and_exports():
     ]
     for name in required:
         assert hasattr(warderbox, name), f"Missing export: {name}"
+
+
+# ============================================================
+# 101-110: Budget Reservation + Reconciliation + Concurrency
+# ============================================================
+
+def test_101_budget_reserve_and_commit():
+    """Reserve budget before execution, commit after."""
+    from warderbox.budget import BudgetTracker
+    bt = BudgetTracker(budget=1.0)
+    res = bt.reserve("a1", "tool", 0.30)
+    assert res is not None
+    assert bt.reserved == 0.30
+    assert bt.committed == 0.30
+    assert bt.spent == 0.0
+
+    bt.commit(res.reservation_id)
+    assert bt.reserved == 0.0
+    assert bt.spent == 0.30
+
+
+def test_102_budget_reserve_blocks_when_full():
+    """Second reservation fails when budget is committed."""
+    from warderbox.budget import BudgetTracker
+    bt = BudgetTracker(budget=0.50)
+    r1 = bt.reserve("a1", "tool", 0.30)
+    assert r1 is not None
+    r2 = bt.reserve("a2", "tool", 0.30)
+    assert r2 is None
+
+
+def test_103_budget_release_frees_reservation():
+    """Released reservation frees budget for others."""
+    from warderbox.budget import BudgetTracker
+    bt = BudgetTracker(budget=0.50)
+    r1 = bt.reserve("a1", "tool", 0.30)
+    bt.release(r1.reservation_id)
+    assert bt.reserved == 0.0
+    r2 = bt.reserve("a2", "tool", 0.30)
+    assert r2 is not None
+
+
+def test_104_budget_reconcile_actual_cost():
+    """Reconcile with actual provider charges."""
+    from warderbox.budget import BudgetTracker
+    bt = BudgetTracker(budget=5.0)
+    bt.record("a1", "gpt4", 0.10)
+    entry = bt.reconcile("a1", 0.15)
+    assert entry is not None
+    assert entry.reconciled
+    assert entry.actual_cost == 0.15
+    assert entry.estimated_cost == 0.10
+    assert bt.spent == 0.15
+
+
+def test_105_budget_commit_with_actual_cost():
+    """Commit reservation with actual cost different from estimate."""
+    from warderbox.budget import BudgetTracker
+    bt = BudgetTracker(budget=5.0)
+    res = bt.reserve("a1", "search", 0.05)
+    bt.commit(res.reservation_id, actual_cost=0.08)
+    assert bt.spent == 0.08
+    summary = bt.summary()
+    assert summary["reconciliation_drift"] == 0.03
+
+
+def test_106_concurrent_budget_reservations():
+    """Multiple threads reserving budget simultaneously."""
+    from warderbox.budget import BudgetTracker
+    bt = BudgetTracker(budget=1.0)
+    results = []
+
+    def worker(i):
+        res = bt.reserve(f"a{i}", "tool", 0.15)
+        if res:
+            time.sleep(0.01)
+            bt.commit(res.reservation_id)
+            results.append(True)
+        else:
+            results.append(False)
+
+    threads = [threading.Thread(target=worker, args=(i,)) for i in range(10)]
+    for t in threads:
+        t.start()
+    for t in threads:
+        t.join()
+
+    successes = sum(1 for r in results if r)
+    assert successes <= 6
+    assert bt.spent <= 1.0
+
+
+def test_107_shield_concurrent_budget():
+    """Concurrent shield tool calls respect budget via reservations."""
+    shield = WarderBox(budget=0.50)
+    results = []
+
+    @shield.tool(cost=0.10)
+    def action(n: int) -> int:
+        return n
+
+    def worker(n):
+        r = action(n=n)
+        results.append(r)
+
+    threads = [threading.Thread(target=worker, args=(i,)) for i in range(10)]
+    for t in threads:
+        t.start()
+    for t in threads:
+        t.join()
+
+    successes = [r for r in results if r.success]
+    blocked = [r for r in results if r.blocked]
+    assert len(successes) == 5
+    assert len(blocked) == 5
+    assert shield._budget.spent == 0.50
+
+
+def test_108_shield_reconcile_cost():
+    """Shield reconcile_cost updates actual charges."""
+    shield = _full_shield()
+
+    @shield.tool(cost=0.05)
+    def action() -> str:
+        return "ok"
+
+    r = action()
+    assert r.success
+    assert shield._budget.spent == 0.05
+
+    ok = shield.reconcile_cost(r.action.id, 0.08)
+    assert ok
+    assert shield._budget.spent == 0.08
+
+
+def test_109_budget_summary_has_reservation_fields():
+    """Budget summary includes reservation and reconciliation info."""
+    from warderbox.budget import BudgetTracker
+    bt = BudgetTracker(budget=5.0)
+    res = bt.reserve("a1", "tool", 0.30)
+    summary = bt.summary()
+    assert "reserved" in summary
+    assert "committed" in summary
+    assert "active_reservations" in summary
+    assert "reconciliation_drift" in summary
+    assert summary["reserved"] == 0.30
+    assert summary["active_reservations"] == 1
+    bt.commit(res.reservation_id)
+    summary = bt.summary()
+    assert summary["active_reservations"] == 0
+
+
+def test_110_failed_call_still_costs():
+    """Failed calls commit their cost (provider still charges)."""
+    shield = _full_shield(budget=5.0)
+
+    @shield.tool(cost=0.10)
+    def failing() -> str:
+        raise RuntimeError("API error")
+
+    r = failing()
+    assert r.error is not None
+    assert shield._budget.spent == 0.10

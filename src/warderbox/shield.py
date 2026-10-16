@@ -279,7 +279,8 @@ class WarderBox:
                 })
                 return result
 
-        if self._budget.would_exceed(cost):
+        reservation = self._budget.reserve(action.id, action.tool_name, cost)
+        if reservation is None:
             result = ActionResult(
                 action=action,
                 blocked=True,
@@ -297,6 +298,7 @@ class WarderBox:
 
         exceeded, rate_reason = self._rate_limiter.would_exceed(action.tool_name)
         if exceeded:
+            self._budget.release(reservation.reservation_id)
             result = ActionResult(
                 action=action,
                 blocked=True,
@@ -323,7 +325,7 @@ class WarderBox:
                 snapshot_id=snapshot_id,
                 cost=cost,
             )
-            self._budget.record(action.id, action.tool_name, cost)
+            self._budget.commit(reservation.reservation_id)
             self._rate_limiter.record(action.tool_name)
             self._history.append(result)
             if self._logger:
@@ -355,7 +357,7 @@ class WarderBox:
                     self._notifier.emit("action_error", {
                         "tool": action.tool_name, "error": str(e),
                     })
-                    self._budget.record(action.id, action.tool_name, cost)
+                    self._budget.commit(reservation.reservation_id)
                     self._rate_limiter.record(action.tool_name)
                     self._history.append(result)
                     if self._logger:
@@ -389,7 +391,7 @@ class WarderBox:
                 "tool": action.tool_name, "error": str(e),
             })
 
-        self._budget.record(action.id, action.tool_name, cost)
+        self._budget.commit(reservation.reservation_id)
         self._rate_limiter.record(action.tool_name)
         self._history.append(result)
         if self._logger:
@@ -415,6 +417,13 @@ class WarderBox:
             self._tracer.end_span(span, "error" if result.error else "ok")
 
         return result
+
+    # -- Cost Reconciliation --
+
+    def reconcile_cost(self, action_id: str, actual_cost: float) -> bool:
+        """Update a recorded action with the actual provider charge."""
+        entry = self._budget.reconcile(action_id, actual_cost)
+        return entry is not None
 
     # -- Rollback --
 
