@@ -1654,7 +1654,7 @@ def test_99_end_to_end_scenario():
 def test_100_version_and_exports():
     """Verify all public exports are accessible."""
     import warderbox
-    assert warderbox.__version__ == "0.3.0"
+    assert warderbox.__version__ == "0.3.1"
 
     required = [
         "WarderBox", "AsyncWarderBox", "AgentPool", "AgentScorer",

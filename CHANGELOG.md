@@ -2,6 +2,15 @@
 
 All notable changes to WarderBox (formerly OpShield) are documented here.
 
+## [0.3.1] - 2026-10-16
+
+### Added — FinOps & Agent Cost Optimization
+- **Smart Model Routing** (`routing.py`): Auto-routes tasks to cheapest capable LLM model, complexity classification (LOW/MEDIUM/HIGH), tool overrides, 60-90% cost savings
+- **Cost Anomaly Detection** (`anomaly.py`): Z-score based cost spike detection, infinite loop detection, rate spike monitoring, burn rate alerts, per-tool tracking, callbacks
+- **FinOps Dashboard**: 4-tab real-time web UI (Overview, FinOps, Routing, Alerts) with cost charts, model distribution, alert severity
+- **100 integration tests**: Comprehensive tests exercising all 36 modules simultaneously
+- Total test count: **255 tests**
+
 ## [0.3.0] - 2026-10-15
 
 ### Changed — Rename
