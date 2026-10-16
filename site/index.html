@@ -114,7 +114,7 @@ footer { text-align: center; padding: 40px 24px; border-top: 1px solid var(--bor
 <section class="hero">
   <div class="badge">Open Source &middot; Zero Dependencies &middot; Python 3.11+</div>
   <h1>WarderBox</h1>
-  <p class="tagline">The safety layer between AI agents and the real world. Rollback, cost control, circuit breakers, compliance, and distributed tracing — in one library.</p>
+  <p class="tagline">The safety &amp; FinOps layer between AI agents and the real world. Smart model routing, cost anomaly detection, rollback, budget control, and more — in one library.</p>
   <div class="hero-cta">
     <a href="#install" class="btn btn-primary">Get Started</a>
     <a href="https://github.com/alicelik-games/warderbox" class="btn btn-outline">GitHub</a>
@@ -122,8 +122,8 @@ footer { text-align: center; padding: 40px 24px; border-top: 1px solid var(--bor
 </section>
 
 <section class="stats-bar">
-  <div class="stat"><div class="num">32+</div><div class="label">Modules</div></div>
-  <div class="stat"><div class="num">107+</div><div class="label">Tests</div></div>
+  <div class="stat"><div class="num">36</div><div class="label">Modules</div></div>
+  <div class="stat"><div class="num">255+</div><div class="label">Tests</div></div>
   <div class="stat"><div class="num">5</div><div class="label">Frameworks</div></div>
   <div class="stat"><div class="num">0</div><div class="label">Dependencies</div></div>
 </section>
@@ -196,6 +196,21 @@ footer { text-align: center; padding: 40px 24px; border-top: 1px solid var(--bor
         <h3>5 Framework Integrations</h3>
         <p>OpenAI, Anthropic Claude, LangChain, CrewAI, Microsoft AutoGen. Zero import overhead — frameworks are optional.</p>
       </div>
+      <div class="feature-card">
+        <div class="icon">&#x1f9e0;</div>
+        <h3>Smart Model Routing</h3>
+        <p>Automatically classifies task complexity and routes to the cheapest capable model. 60-90% cost savings without sacrificing quality.</p>
+      </div>
+      <div class="feature-card">
+        <div class="icon">&#x1f6a8;</div>
+        <h3>Cost Anomaly Detection</h3>
+        <p>Z-score based spending spike detection, infinite loop detection, rate spike monitoring, and burn rate alerts with real-time callbacks.</p>
+      </div>
+      <div class="feature-card">
+        <div class="icon">&#x1f4c8;</div>
+        <h3>FinOps Dashboard</h3>
+        <p>Real-time 4-tab web UI: Overview, FinOps (cost breakdown), Routing (model stats), and Alerts (anomaly monitoring).</p>
+      </div>
     </div>
   </div>
 </section>
@@ -218,7 +233,11 @@ footer { text-align: center; padding: 40px 24px; border-top: 1px solid var(--bor
       <div class="pipeline-arrow">&#x2192;</div>
       <div class="pipeline-step">Rate Limit</div>
       <div class="pipeline-arrow">&#x2192;</div>
+      <div class="pipeline-step">Model Routing</div>
+      <div class="pipeline-arrow">&#x2192;</div>
       <div class="pipeline-step">Execute</div>
+      <div class="pipeline-arrow">&#x2192;</div>
+      <div class="pipeline-step">Anomaly Check</div>
       <div class="pipeline-arrow">&#x2192;</div>
       <div class="pipeline-step">Log + Trace</div>
     </div>
@@ -246,6 +265,9 @@ footer { text-align: center; padding: 40px 24px; border-top: 1px solid var(--bor
       <tr><td>Compliance Reports</td><td class="yes">Built-in</td><td class="no">No</td><td class="no">No</td><td class="partial">Manual</td></tr>
       <tr><td>Agent Scoring</td><td class="yes">Built-in</td><td class="no">No</td><td class="no">No</td><td class="no">No</td></tr>
       <tr><td>Multi-Agent Support</td><td class="yes">AgentPool</td><td class="no">No</td><td class="partial">Limited</td><td class="partial">Manual</td></tr>
+      <tr><td>Smart Model Routing</td><td class="yes">Built-in</td><td class="no">No</td><td class="no">No</td><td class="partial">Manual</td></tr>
+      <tr><td>Cost Anomaly Detection</td><td class="yes">Built-in</td><td class="no">No</td><td class="no">No</td><td class="no">No</td></tr>
+      <tr><td>FinOps Dashboard</td><td class="yes">4-tab UI</td><td class="no">No</td><td class="no">No</td><td class="no">No</td></tr>
       <tr><td>Framework Agnostic</td><td class="yes">5 frameworks</td><td class="partial">LLM-focused</td><td class="no">LangChain only</td><td class="yes">Yes</td></tr>
       <tr><td>Zero Dependencies</td><td class="yes">Yes</td><td class="no">Many</td><td class="no">Many</td><td class="yes">Yes</td></tr>
     </table>
