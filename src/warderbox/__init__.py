@@ -22,6 +22,11 @@ from warderbox.webhooks import EventNotifier
 from warderbox.routing import ModelRouter, ComplexityClassifier, Complexity
 from warderbox.anomaly import AnomalyDetector, AnomalyType, AnomalyAlert
 from warderbox.config import rules_from_config
+from warderbox.timeout import TimeoutExecutor, TimeoutPolicy
+from warderbox.idempotency import IdempotencyGuard, DedupeResult
+from warderbox.output_validation import OutputValidator, OutputRule, OutputAction
+from warderbox.fallback import FallbackManager, FallbackRoute
+from warderbox.quota import QuotaManager, QuotaPeriod, QuotaLimit
 
 __all__ = [
     "WarderBox",
@@ -57,5 +62,17 @@ __all__ = [
     "load_policy",
     "validate_policy",
     "rules_from_config",
+    "TimeoutExecutor",
+    "TimeoutPolicy",
+    "IdempotencyGuard",
+    "DedupeResult",
+    "OutputValidator",
+    "OutputRule",
+    "OutputAction",
+    "FallbackManager",
+    "FallbackRoute",
+    "QuotaManager",
+    "QuotaPeriod",
+    "QuotaLimit",
 ]
-__version__ = "0.3.1"
+__version__ = "0.3.2"

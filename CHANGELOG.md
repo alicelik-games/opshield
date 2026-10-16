@@ -2,14 +2,27 @@
 
 All notable changes to WarderBox (formerly OpShield) are documented here.
 
+## [0.3.2] - 2026-10-16
+
+### Added — Production Hardening
+- **Execution Timeout** (`timeout.py`): Hard timeout enforcement for tool calls, per-tool overrides, daemon-thread execution, prevents hanging calls from burning budget
+- **Idempotency Guard** (`idempotency.py`): Duplicate execution prevention with content-hash keys, TTL-based expiry, per-tool protection, cached result return — prevents double-sends on retry
+- **Output Validation** (`output_validation.py`): Validates/redacts/blocks tool outputs before they reach the agent, pattern-based PII detection, max-length enforcement, custom validators, built-in PII rules
+- **Fallback Routing** (`fallback.py`): Automatic fallback to cheaper/safer tools when circuit breaker opens, configurable conditions, max-fallback limits, graceful degradation
+- **Execution Quotas** (`quota.py`): Daily/weekly/monthly call limits per tool or globally, complements sliding-window rate limiter with long-term caps
+- **85 new tests**: Unit + integration tests for all 5 new modules
+- Total test count: **350 tests**
+- Total modules: **41**
+
 ## [0.3.1] - 2026-10-16
 
 ### Added — FinOps & Agent Cost Optimization
 - **Smart Model Routing** (`routing.py`): Auto-routes tasks to cheapest capable LLM model, complexity classification (LOW/MEDIUM/HIGH), tool overrides, 60-90% cost savings
 - **Cost Anomaly Detection** (`anomaly.py`): Z-score based cost spike detection, infinite loop detection, rate spike monitoring, burn rate alerts, per-tool tracking, callbacks
 - **FinOps Dashboard**: 4-tab real-time web UI (Overview, FinOps, Routing, Alerts) with cost charts, model distribution, alert severity
+- **Thread-safe Budget Reservation** (`budget.py`): Reserve-before-dispatch with lock, cost reconciliation with actual provider charges, drift tracking
 - **100 integration tests**: Comprehensive tests exercising all 36 modules simultaneously
-- Total test count: **255 tests**
+- Total test count: **265 tests**
 
 ## [0.3.0] - 2026-10-15
 

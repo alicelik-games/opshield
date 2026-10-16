@@ -1654,7 +1654,7 @@ def test_99_end_to_end_scenario():
 def test_100_version_and_exports():
     """Verify all public exports are accessible."""
     import warderbox
-    assert warderbox.__version__ == "0.3.1"
+    assert warderbox.__version__ == "0.3.2"
 
     required = [
         "WarderBox", "AsyncWarderBox", "AgentPool", "AgentScorer",
@@ -1666,6 +1666,11 @@ def test_100_version_and_exports():
         "ModelRouter", "ComplexityClassifier", "Complexity",
         "AnomalyDetector", "AnomalyType", "AnomalyAlert",
         "load_policy", "validate_policy", "rules_from_config",
+        "TimeoutExecutor", "TimeoutPolicy",
+        "IdempotencyGuard", "DedupeResult",
+        "OutputValidator", "OutputRule", "OutputAction",
+        "FallbackManager", "FallbackRoute",
+        "QuotaManager", "QuotaPeriod", "QuotaLimit",
     ]
     for name in required:
         assert hasattr(warderbox, name), f"Missing export: {name}"

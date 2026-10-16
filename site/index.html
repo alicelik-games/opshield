@@ -114,7 +114,7 @@ footer { text-align: center; padding: 40px 24px; border-top: 1px solid var(--bor
 <section class="hero">
   <div class="badge">Open Source &middot; Zero Dependencies &middot; Python 3.11+</div>
   <h1>WarderBox</h1>
-  <p class="tagline">The safety &amp; FinOps layer between AI agents and the real world. Smart model routing, cost anomaly detection, rollback, budget control, and more — in one library.</p>
+  <p class="tagline">The safety &amp; FinOps layer between AI agents and the real world. Execution timeout, idempotency, output validation, fallback routing, quotas, smart model routing, anomaly detection — 41 modules in one library.</p>
   <div class="hero-cta">
     <a href="#install" class="btn btn-primary">Get Started</a>
     <a href="https://github.com/alicelik-games/warderbox" class="btn btn-outline">GitHub</a>
@@ -122,8 +122,8 @@ footer { text-align: center; padding: 40px 24px; border-top: 1px solid var(--bor
 </section>
 
 <section class="stats-bar">
-  <div class="stat"><div class="num">36</div><div class="label">Modules</div></div>
-  <div class="stat"><div class="num">255+</div><div class="label">Tests</div></div>
+  <div class="stat"><div class="num">41</div><div class="label">Modules</div></div>
+  <div class="stat"><div class="num">350+</div><div class="label">Tests</div></div>
   <div class="stat"><div class="num">5</div><div class="label">Frameworks</div></div>
   <div class="stat"><div class="num">0</div><div class="label">Dependencies</div></div>
 </section>
@@ -211,6 +211,31 @@ footer { text-align: center; padding: 40px 24px; border-top: 1px solid var(--bor
         <h3>FinOps Dashboard</h3>
         <p>Real-time 4-tab web UI: Overview, FinOps (cost breakdown), Routing (model stats), and Alerts (anomaly monitoring).</p>
       </div>
+      <div class="feature-card">
+        <div class="icon">&#x23f1;</div>
+        <h3>Execution Timeout</h3>
+        <p>Hard deadline enforcement for tool calls. Per-tool timeout overrides. Kills hanging calls before they burn budget silently.</p>
+      </div>
+      <div class="feature-card">
+        <div class="icon">&#x1f512;</div>
+        <h3>Idempotency Guard</h3>
+        <p>Prevents duplicate execution on retry. Content-hash based dedup with TTL expiry. No more double-sent emails or double payments.</p>
+      </div>
+      <div class="feature-card">
+        <div class="icon">&#x1f50d;</div>
+        <h3>Output Validation</h3>
+        <p>Validates, redacts, or blocks tool outputs before they reach the agent. Built-in PII detection. Custom pattern rules.</p>
+      </div>
+      <div class="feature-card">
+        <div class="icon">&#x1f504;</div>
+        <h3>Fallback Routing</h3>
+        <p>When a tool is circuit-broken, auto-routes to a cheaper/safer alternative. Configurable conditions and max-fallback limits.</p>
+      </div>
+      <div class="feature-card">
+        <div class="icon">&#x1f4ca;</div>
+        <h3>Execution Quotas</h3>
+        <p>Daily, weekly, and monthly call limits per tool or globally. Long-term caps that complement sliding-window rate limiting.</p>
+      </div>
     </div>
   </div>
 </section>
@@ -221,21 +246,25 @@ footer { text-align: center; padding: 40px 24px; border-top: 1px solid var(--bor
     <div class="pipeline-flow">
       <div class="pipeline-step">Agent Call</div>
       <div class="pipeline-arrow">&#x2192;</div>
+      <div class="pipeline-step">Idempotency</div>
+      <div class="pipeline-arrow">&#x2192;</div>
       <div class="pipeline-step">Capabilities</div>
       <div class="pipeline-arrow">&#x2192;</div>
-      <div class="pipeline-step">Circuit Breaker</div>
+      <div class="pipeline-step">Circuit Breaker + Fallback</div>
       <div class="pipeline-arrow">&#x2192;</div>
       <div class="pipeline-step">Risk Rules</div>
       <div class="pipeline-arrow">&#x2192;</div>
       <div class="pipeline-step">Approval</div>
       <div class="pipeline-arrow">&#x2192;</div>
-      <div class="pipeline-step">Budget</div>
+      <div class="pipeline-step">Budget Reserve</div>
       <div class="pipeline-arrow">&#x2192;</div>
       <div class="pipeline-step">Rate Limit</div>
       <div class="pipeline-arrow">&#x2192;</div>
-      <div class="pipeline-step">Model Routing</div>
+      <div class="pipeline-step">Quota Check</div>
       <div class="pipeline-arrow">&#x2192;</div>
-      <div class="pipeline-step">Execute</div>
+      <div class="pipeline-step">Execute + Timeout</div>
+      <div class="pipeline-arrow">&#x2192;</div>
+      <div class="pipeline-step">Output Validation</div>
       <div class="pipeline-arrow">&#x2192;</div>
       <div class="pipeline-step">Anomaly Check</div>
       <div class="pipeline-arrow">&#x2192;</div>
@@ -268,6 +297,11 @@ footer { text-align: center; padding: 40px 24px; border-top: 1px solid var(--bor
       <tr><td>Smart Model Routing</td><td class="yes">Built-in</td><td class="no">No</td><td class="no">No</td><td class="partial">Manual</td></tr>
       <tr><td>Cost Anomaly Detection</td><td class="yes">Built-in</td><td class="no">No</td><td class="no">No</td><td class="no">No</td></tr>
       <tr><td>FinOps Dashboard</td><td class="yes">4-tab UI</td><td class="no">No</td><td class="no">No</td><td class="no">No</td></tr>
+      <tr><td>Execution Timeout</td><td class="yes">Built-in</td><td class="no">No</td><td class="no">No</td><td class="partial">Manual</td></tr>
+      <tr><td>Idempotency Guard</td><td class="yes">Built-in</td><td class="no">No</td><td class="no">No</td><td class="no">No</td></tr>
+      <tr><td>Output Validation</td><td class="yes">Built-in</td><td class="partial">Validators</td><td class="no">No</td><td class="partial">Manual</td></tr>
+      <tr><td>Fallback Routing</td><td class="yes">Built-in</td><td class="no">No</td><td class="no">No</td><td class="partial">Manual</td></tr>
+      <tr><td>Execution Quotas</td><td class="yes">Built-in</td><td class="no">No</td><td class="no">No</td><td class="partial">Manual</td></tr>
       <tr><td>Framework Agnostic</td><td class="yes">5 frameworks</td><td class="partial">LLM-focused</td><td class="no">LangChain only</td><td class="yes">Yes</td></tr>
       <tr><td>Zero Dependencies</td><td class="yes">Yes</td><td class="no">Many</td><td class="no">Many</td><td class="yes">Yes</td></tr>
     </table>

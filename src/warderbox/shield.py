@@ -15,12 +15,18 @@ from warderbox.capabilities import CapabilityManager
 from warderbox.chaos import ChaosEngine
 from warderbox.circuitbreaker import CircuitBreaker
 from warderbox.config import parse_config, rules_from_config
+from warderbox.fallback import FallbackManager
+from warderbox.idempotency import IdempotencyGuard, DedupeResult
 from warderbox.logger import ActionLogger
 from warderbox.masking import DataMasker
+from warderbox.output_validation import OutputValidator
+from warderbox.quota import QuotaManager
 from warderbox.ratelimit import RateLimiter, ToolLimit
 from warderbox.rules import RuleEngine
 from warderbox.snapshot import SnapshotStore
 from warderbox.retry import RetryPolicy, execute_with_retry
+from warderbox.timeout import TimeoutExecutor, TimeoutPolicy
+from warderbox.timeout import TimeoutError as ToolTimeoutError
 from warderbox.tracing import Tracer
 from warderbox.webhooks import EventNotifier
 
@@ -83,6 +89,11 @@ class WarderBox:
         self._approval: ApprovalManager | None = None
         self._tracer: Tracer | None = None
         self._chaos: ChaosEngine | None = None
+        self._timeout: TimeoutExecutor | None = None
+        self._idempotency: IdempotencyGuard | None = None
+        self._output_validator: OutputValidator | None = None
+        self._fallback: FallbackManager | None = None
+        self._quota: QuotaManager | None = None
 
     @classmethod
     def from_config(cls, config: dict[str, Any]) -> "WarderBox":
@@ -162,6 +173,21 @@ class WarderBox:
     def set_chaos(self, chaos: ChaosEngine) -> None:
         self._chaos = chaos
 
+    def set_timeout(self, timeout: TimeoutExecutor) -> None:
+        self._timeout = timeout
+
+    def set_idempotency(self, guard: IdempotencyGuard) -> None:
+        self._idempotency = guard
+
+    def set_output_validator(self, validator: OutputValidator) -> None:
+        self._output_validator = validator
+
+    def set_fallback(self, fallback: FallbackManager) -> None:
+        self._fallback = fallback
+
+    def set_quota(self, quota: QuotaManager) -> None:
+        self._quota = quota
+
     # -- Tool decorator --
 
     def tool(
@@ -231,9 +257,53 @@ class WarderBox:
                 })
                 return result
 
+        if self._idempotency:
+            dedup_status, cached = self._idempotency.check(
+                action.tool_name, action.args,
+            )
+            if dedup_status == DedupeResult.DUPLICATE:
+                result = ActionResult(
+                    action=action, blocked=True,
+                    block_reason=f"Duplicate call blocked (cached result available)",
+                    output=cached,
+                )
+                self._history.append(result)
+                if self._logger:
+                    self._logger.log(result)
+                self._notifier.emit("action_deduplicated", {
+                    "tool": action.tool_name,
+                })
+                return result
+
         if self._circuit_breaker:
             cb_ok, cb_reason = self._circuit_breaker.should_allow(action.tool_name)
             if not cb_ok:
+                if self._fallback and self._fallback.has_fallback(action.tool_name):
+                    route = self._fallback.get_fallback(
+                        action.tool_name, reason="circuit_breaker",
+                    )
+                    if route and route.fallback_fn:
+                        self._fallback.record_fallback(action.tool_name)
+                        try:
+                            output = route.fallback_fn(*args, **kwargs)
+                            result = ActionResult(
+                                action=action, output=output, cost=route.fallback_cost,
+                            )
+                            self._budget.record(
+                                action.id, route.fallback_tool, route.fallback_cost,
+                            )
+                            self._rate_limiter.record(action.tool_name)
+                            self._history.append(result)
+                            if self._logger:
+                                self._logger.log(result)
+                            self._notifier.emit("action_fallback", {
+                                "tool": action.tool_name,
+                                "fallback": route.fallback_tool,
+                            })
+                            return result
+                        except Exception:
+                            pass
+
                 result = ActionResult(
                     action=action, blocked=True,
                     block_reason=f"Circuit breaker: {cb_reason}",
@@ -312,6 +382,23 @@ class WarderBox:
             })
             return result
 
+        if self._quota:
+            q_exceeded, q_reason = self._quota.would_exceed(action.tool_name)
+            if q_exceeded:
+                self._budget.release(reservation.reservation_id)
+                result = ActionResult(
+                    action=action,
+                    blocked=True,
+                    block_reason=q_reason,
+                )
+                self._history.append(result)
+                if self._logger:
+                    self._logger.log(result)
+                self._notifier.emit("quota_exceeded", {
+                    "tool": action.tool_name, "reason": q_reason,
+                })
+                return result
+
         snapshot_id = None
         if self._auto_snapshot and action.tool_name in self._tool_states:
             state = self._tool_states[action.tool_name]["capture"]()
@@ -368,16 +455,59 @@ class WarderBox:
                     return result
 
         try:
-            if retry_policy:
+            if self._timeout and not retry_policy:
+                output = self._timeout.execute(
+                    action.tool_name, func, args, kwargs,
+                )
+            elif retry_policy:
                 output, _errors = execute_with_retry(func, args, kwargs, retry_policy)
             else:
                 output = func(*args, **kwargs)
+
+            if self._output_validator:
+                check = self._output_validator.validate(action.tool_name, output)
+                if not check.passed:
+                    result = ActionResult(
+                        action=action,
+                        error=f"Output blocked: {'; '.join(check.violations)}",
+                        snapshot_id=snapshot_id,
+                        cost=cost,
+                    )
+                    self._budget.commit(reservation.reservation_id)
+                    self._rate_limiter.record(action.tool_name)
+                    if self._quota:
+                        self._quota.record(action.tool_name)
+                    self._history.append(result)
+                    if self._logger:
+                        self._logger.log(result)
+                    self._notifier.emit("output_blocked", {
+                        "tool": action.tool_name,
+                        "violations": check.violations,
+                    })
+                    if span:
+                        span.set_attribute("output.blocked", True)
+                        self._tracer.end_span(span, "output_blocked")
+                    return result
+                output = check.filtered_output
+
             result = ActionResult(
                 action=action,
                 output=output,
                 snapshot_id=snapshot_id,
                 cost=cost,
             )
+        except ToolTimeoutError as e:
+            result = ActionResult(
+                action=action,
+                error=str(e),
+                snapshot_id=snapshot_id,
+                cost=cost,
+            )
+            if self._circuit_breaker:
+                self._circuit_breaker.record_failure(action.tool_name)
+            self._notifier.emit("action_timeout", {
+                "tool": action.tool_name, "error": str(e),
+            })
         except Exception as e:
             result = ActionResult(
                 action=action,
@@ -393,6 +523,8 @@ class WarderBox:
 
         self._budget.commit(reservation.reservation_id)
         self._rate_limiter.record(action.tool_name)
+        if self._quota:
+            self._quota.record(action.tool_name)
         self._history.append(result)
         if self._logger:
             self._logger.log(result)
@@ -400,6 +532,10 @@ class WarderBox:
         if result.success:
             if self._circuit_breaker:
                 self._circuit_breaker.record_success(action.tool_name)
+            if self._idempotency and self._idempotency.is_protected(action.tool_name):
+                self._idempotency.record(
+                    action.tool_name, action.args, result.output,
+                )
             self._notifier.emit("action_completed", {
                 "tool": action.tool_name, "cost": cost,
             })

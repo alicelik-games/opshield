@@ -15,7 +15,7 @@
   <a href="https://pypi.org/project/warderbox/"><img src="https://img.shields.io/pypi/dm/warderbox?color=orange" alt="Downloads"/></a>
 </p>
 
-WarderBox intercepts every tool call your AI agent makes and provides rollback, cost control, smart model routing, cost anomaly detection, rate limiting, circuit breakers, approval workflows, distributed tracing, chaos testing, and compliance reporting — so agents can work autonomously without causing damage.
+WarderBox intercepts every tool call your AI agent makes and provides rollback, cost control, execution timeout, idempotency guard, output validation, fallback routing, execution quotas, smart model routing, cost anomaly detection, rate limiting, circuit breakers, approval workflows, distributed tracing, chaos testing, and compliance reporting — so agents can work autonomously without causing damage.
 
 **Zero mandatory dependencies. One `pip install`. Works with every major agent framework.**
 
@@ -41,6 +41,11 @@ WarderBox intercepts every tool call your AI agent makes and provides rollback, 
 | LLM costs too high | Smart Model Routing picks cheapest capable model |
 | Spending spikes unnoticed | Cost Anomaly Detection with z-score alerts |
 | No cost visibility | Real-time FinOps Dashboard with 4 tabs |
+| Tool call hangs forever | Execution Timeout kills it after deadline |
+| Agent retries double-fires | Idempotency Guard blocks duplicate calls |
+| Tool leaks sensitive data | Output Validation redacts/blocks bad outputs |
+| Circuit-broken tool blocks agent | Fallback Routing auto-switches to alternative |
+| Agent exceeds monthly limit | Execution Quotas (daily/weekly/monthly caps) |
 
 ## Install
 
@@ -372,6 +377,81 @@ report = replayer.replay_all(shield)
 print(f"Match rate: {report.success_rate:.0%}")
 ```
 
+### Execution Timeout
+
+```python
+from warderbox import WarderBox, TimeoutExecutor, TimeoutPolicy
+
+shield = WarderBox(budget=5.00)
+shield.set_timeout(TimeoutExecutor(TimeoutPolicy(
+    default_seconds=30,
+    tool_timeouts={"slow_api": 60, "fast_lookup": 5},
+)))
+
+@shield.tool(cost=0.05)
+def slow_api(query: str) -> str:
+    return external_api.call(query)  # killed if >60s
+```
+
+### Idempotency Guard
+
+```python
+from warderbox import WarderBox, IdempotencyGuard
+
+shield = WarderBox(budget=5.00)
+guard = IdempotencyGuard(default_ttl=3600)
+guard.add_protected_tool("send_email")
+guard.add_protected_tool("process_payment")
+shield.set_idempotency(guard)
+
+@shield.tool(cost=0.01)
+def send_email(to: str, body: str) -> str:
+    return smtp.send(to, body)  # retry won't double-send
+```
+
+### Output Validation
+
+```python
+from warderbox import WarderBox, OutputValidator, OutputRule, OutputAction
+
+shield = WarderBox(budget=5.00)
+validator = OutputValidator()
+validator.add_pii_rules()  # SSN, credit card, API keys, emails
+validator.add_rule(OutputRule(
+    name="max_response_size", max_length=50000, action=OutputAction.BLOCK,
+))
+shield.set_output_validator(validator)
+```
+
+### Fallback Routing
+
+```python
+from warderbox import WarderBox, FallbackManager
+from warderbox import CircuitBreaker
+
+shield = WarderBox(budget=5.00)
+shield.set_circuit_breaker(CircuitBreaker(failure_threshold=3))
+
+fb = FallbackManager()
+fb.register("gpt4_query", "gpt3_query",
+    fallback_fn=gpt3_client.complete,
+    fallback_cost=0.001)
+shield.set_fallback(fb)
+```
+
+### Execution Quotas
+
+```python
+from warderbox import WarderBox, QuotaManager, QuotaPeriod
+
+shield = WarderBox(budget=5.00)
+qm = QuotaManager()
+qm.set_quota("send_email", QuotaPeriod.DAILY, 100)
+qm.set_quota("api_call", QuotaPeriod.MONTHLY, 10000)
+qm.set_quota("global", QuotaPeriod.DAILY, 5000)
+shield.set_quota(qm)
+```
+
 ### Async Support
 
 ```python
@@ -437,15 +517,18 @@ warderbox dashboard --port 8080    # Start web dashboard
 
 ```
 Agent -> WarderBox -> Tool
+         |-- Idempotency Check (block duplicates)
          |-- Capability Check (permissions)
-         |-- Circuit Breaker (fail-fast)
+         |-- Circuit Breaker + Fallback Routing
          |-- Risk Classification (rules engine)
          |-- Approval Workflow (human-in-the-loop)
-         |-- Budget Check + Forecast
+         |-- Budget Reserve (thread-safe)
          |-- Rate Limit Check
+         |-- Quota Check (daily/weekly/monthly)
          |-- Snapshot (for rollback)
          |-- Chaos Injection (testing)
-         |-- Execute (or simulate in test mode)
+         |-- Execute with Timeout (or simulate)
+         |-- Output Validation (redact/block)
          |-- Retry (on failure, with backoff)
          |-- Data Masking (for logs)
          |-- Log to SQLite
@@ -459,7 +542,7 @@ Agent -> WarderBox -> Tool
 
 ## Stats
 
-- **36 Python modules**, 255+ tests
+- **41 Python modules**, 350+ tests
 - **Zero mandatory dependencies**
 - **5 framework integrations**
 - Works with Python 3.11+
