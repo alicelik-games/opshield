@@ -15,7 +15,7 @@
   <a href="https://pypi.org/project/warderbox/"><img src="https://img.shields.io/pypi/dm/warderbox?color=orange" alt="Downloads"/></a>
 </p>
 
-WarderBox intercepts every tool call your AI agent makes and provides rollback, cost control, rate limiting, circuit breakers, approval workflows, distributed tracing, chaos testing, and compliance reporting — so agents can work autonomously without causing damage.
+WarderBox intercepts every tool call your AI agent makes and provides rollback, cost control, smart model routing, cost anomaly detection, rate limiting, circuit breakers, approval workflows, distributed tracing, chaos testing, and compliance reporting — so agents can work autonomously without causing damage.
 
 **Zero mandatory dependencies. One `pip install`. Works with every major agent framework.**
 
@@ -38,6 +38,9 @@ WarderBox intercepts every tool call your AI agent makes and provides rollback, 
 | Test agent resilience | Chaos engineering with fault injection |
 | Track every action | OpenTelemetry-compatible distributed tracing |
 | Evaluate agent quality | Safety/performance scoring (A-F grades) |
+| LLM costs too high | Smart Model Routing picks cheapest capable model |
+| Spending spikes unnoticed | Cost Anomaly Detection with z-score alerts |
+| No cost visibility | Real-time FinOps Dashboard with 4 tabs |
 
 ## Install
 
@@ -277,7 +280,40 @@ print(pool_scorer.summary())   # Ranked leaderboard
 warderbox --db audit.db dashboard --port 8080
 ```
 
-Real-time web UI showing actions, blocks, budget, and rate limits.
+Real-time web UI with 4 tabs: Overview, FinOps, Routing, and Alerts.
+
+### Smart Model Routing (FinOps)
+
+```python
+from warderbox import ModelRouter
+
+router = ModelRouter()
+router.add_model("haiku", cost_per_1k=0.00025, max_complexity=0.35)
+router.add_model("sonnet", cost_per_1k=0.003, max_complexity=0.65)
+router.add_model("opus", cost_per_1k=0.015, max_complexity=1.0)
+
+decision = router.route("Summarize this text")
+print(decision.model)           # "haiku" (cheapest capable)
+print(decision.estimated_cost)  # $0.00025/1k tokens
+
+stats = router.stats()
+print(stats.savings_percent)    # 60-90% cost savings
+```
+
+### Cost Anomaly Detection
+
+```python
+from warderbox import AnomalyDetector
+
+detector = AnomalyDetector(sensitivity=2.0, loop_threshold=10)
+
+# Records costs and fires alerts on spikes
+detector.record("search_api", 0.03)
+detector.record("search_api", 5.00)  # spike! returns alerts
+
+# Alert types: COST_SPIKE, RATE_SPIKE, BUDGET_BURN, LOOP_DETECTED
+print(detector.stats())
+```
 
 ### Prometheus Metrics
 
@@ -416,12 +452,14 @@ Agent -> WarderBox -> Tool
          |-- Emit webhook/callback events
          |-- Record span (distributed tracing)
          |-- Agent Scoring
+         |-- Smart Model Routing (FinOps)
+         |-- Cost Anomaly Detection
          |-- Prometheus metrics
 ```
 
 ## Stats
 
-- **32+ Python modules**, 107+ tests
+- **36 Python modules**, 255+ tests
 - **Zero mandatory dependencies**
 - **5 framework integrations**
 - Works with Python 3.11+
